@@ -1,0 +1,15 @@
+.App{
+  display: flex;
+  .form{
+    margin: 50px 50px;
+    flex: 1;
+
+    .btn-container{
+      display: flex;
+    }
+  }
+  .table{
+    margin: 50px 50px;
+    flex: 1;
+  }
+}
