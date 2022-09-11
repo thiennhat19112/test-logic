@@ -3,68 +3,86 @@ import { MDBInput } from "mdb-react-ui-kit";
 import { useDispatch } from "react-redux";
 import { addCompany, editCompany } from "../redux/companySlice";
 import { useLocation, useNavigate } from "react-router-dom";
-const Form = ({ type }) => {
-  const [company, setCompany] = useState({});
+import TextField from "@mui/material/TextField";
+import Switch from "@mui/material/Switch";
+import { FormControlLabel } from "@mui/material";
+const Form = () => {
+  const [company, setCompany] = useState({
+    Name: "",
+  });
+  const [checkedAgree, setCheckedAgree] = useState(false);
+  const [errorElements, setErrorElement] = useState({
+    Name: false,
+  });
+
+
+  console.log(errorElements.Agree);
   const checkbox = useRef(null);
   const location = useLocation();
   const dispatch = useDispatch();
   const navigative = useNavigate();
+  const type = location.pathname.split("/")[1];
   const param = location.pathname.split("/")[2];
 
   useEffect(() => {
     if (type === "edit") {
-      const { Name, Address, Type,Oid, Created } = location.state;
+      const { Name, Address, Type, Oid, Created } = location.state;
       setCompany({
         Name: Name || "",
         Address: Address || "",
         Type: Type || "",
-        Oid : Oid,
-        Created: Created
+        Oid: Oid,
+        Created: Created,
       });
     }
   }, [param]);
 
+  const validate = () => {
+    if (!company.Name.trim()) {
+      setErrorElement((prev) => {
+        return { ...prev, Name: true };
+      });
+      return true;
+    }
+    return false;
+  };
+
   const handleChange = (e) => {
-    if(type === "edit"){
+    if (type === "edit") {
       setCompany((prev) => {
         return { ...prev, [e.target.name]: e.target.value };
       });
-    }else{
+    } else {
       setCompany((prev) => {
-        return { ...prev, [e.target.name]: e.target.value};
+        return { ...prev, [e.target.name]: e.target.value };
       });
     }
-  };
 
+    setErrorElement((prev) => {
+      return { ...prev, [e.target.name]: false };
+    });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const ischecked = checkbox.current.checked;
-    if (!ischecked) return window.alert("Bạn chưa đồng ý!");
-    dispatch(addCompany(company));
-    setCompany({
-      Name: "",
-      Address:"",
-      Type: "",
-      Oid :""
-    });
-    checkbox.current.checked = false;
-  };
+    validate();
+    const isFormInValid = validate();
+    if (!isFormInValid) {
+      if (type === "edit") {
+        dispatch(editCompany({ company, param }));
+        navigative("/");
+      } else {
+        dispatch(addCompany(company));
+      }
 
-  const handleEdit = (e) => {
-    e.preventDefault();
-    const ischecked = checkbox.current.checked;
-    if (!ischecked) return window.alert("Bạn chưa đồng ý!");
-    dispatch(editCompany({ company, param }));
-    window.alert("sửa thành công");
-    setCompany({
-      Name: "",
-      Address:"",
-      Type: "",
-      Oid :"",
-    });
-    checkbox.current.checked = false;
-    navigative("/");
+      setCompany({
+        Name: "",
+        Address: "",
+        Type: "",
+        Oid: "",
+      });
+      checkbox.current.checked = false;
+    }
   };
 
   const handleReset = (e) => {
@@ -73,20 +91,24 @@ const Form = ({ type }) => {
       Address: "",
       Type: "",
     });
+    setErrorElement({
+      Name: false,
+    });
     checkbox.current.checked = false;
   };
 
   return (
-    <form className="form">
+    <form className="form" onSubmit={handleSubmit}>
       <div className="form-outline mb-4">
         <div className="form-outline">
-          <MDBInput
-            onChange={handleChange}
+          <TextField
+            error={errorElements.Name}
             name="Name"
-            label="Name"
-            id="form1"
-            type="text"
+            onChange={handleChange}
             value={company?.Name}
+            label="Name"
+            variant="outlined"
+            defaultValue={type === "edit" ? company?.Name : ""}
           />
         </div>
       </div>
@@ -103,38 +125,43 @@ const Form = ({ type }) => {
       <div className="form-outline mb-4">
         <select onChange={handleChange} name="Type" label="Type">
           <option value="">Type</option>
-          <option selected={company.Type === "donvi"} value="donvi">Đơn vị</option>
-          <option selected={company.Type === "phongban"} value="phongban">Phòng ban</option>
-          <option selected={company.Type === "nhom"} value="nhom">Nhóm</option>
+          <option selected={company.Type === "donvi"} value="donvi">
+            Đơn vị
+          </option>
+          <option selected={company.Type === "phongban"} value="phongban">
+            Phòng ban
+          </option>
+          <option selected={company.Type === "nhom"} value="nhom">
+            Nhóm
+          </option>
         </select>
       </div>
-      <input id="checkbox" type="checkbox" ref={checkbox} />
-      <label htmlFor="checkbox">Đông ý</label>
+      <FormControlLabel
+        control={
+          <Switch
+            checked={checkedAgree}
+            onChange={() => setCheckedAgree(!checkedAgree)}
+            inputProps={{ "aria-label": "controlled" }}
+          />
+        }
+        label={"Đồng ý"}
+      />
       {type === "edit" ? (
-        <button
-          onClick={(e) => handleEdit(e)}
-          type="submit"
-          className="btn btn-primary btn-block mb-4"
-        >
+        <button type="submit" className="btn btn-primary btn-block mb-4">
           Edit
         </button>
       ) : (
-        <button
-          onClick={handleSubmit}
-          type="submit"
-          className="btn btn-primary btn-block mb-4"
-        >
+        <button type="submit" className="btn btn-primary btn-block mb-4">
           Submit
         </button>
       )}
       <button
         onClick={handleReset}
-        type="button"
+        type="reset"
         className="btn btn-primary btn-block mb-4"
       >
         Reset
       </button>
-      
     </form>
   );
 };

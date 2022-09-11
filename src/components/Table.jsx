@@ -1,24 +1,46 @@
-import { MDBTable, MDBTableHead, MDBTableBody, MDBBtn } from "mdb-react-ui-kit";
+import {
+  MDBTable,
+  MDBTableHead,
+  MDBTableBody,
+  MDBBtn,
+} from "mdb-react-ui-kit";
+import Dialog from '@mui/material/Dialog';
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { memo, useEffect, useRef, useState } from "react";
 import { deleteCompany, reloadCompany } from "../redux/companySlice";
 import moment from "moment";
+import Form from "./Form";
+import { DialogActions, DialogContent, DialogTitle } from "@mui/material";
+
 
 const Table = () => {
   const { status, companys } = useSelector((state) => state.companys);
   const [companyChecked, setCompanyChecked] = useState([]);
+  const [openDialog, setOpenDialog] = useState(false);
   const checkAllElement = useRef(false);
   const isMounted = useRef(false);
   const [checkedAll, setCheckAll] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
+  const type = location.pathname.split("/")[1];
 
   const handleEdit = (company) => {
+    setOpenDialog(true);
     setCompanyChecked([]);
     const { Name, Address, Type, Oid, Created } = company[0];
     navigate(`/edit/${Oid}`, { state: { Name, Address, Type, Oid, Created } });
   };
+
+  const handleClickOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
 
   const handleReload = (e) => {
     checkAllElement.current.checked = false;
@@ -28,12 +50,14 @@ const Table = () => {
 
   const handleChangeCheckedCompany = (company) => {
     const OidsChecked = [];
-    companyChecked.map(item=>{
-      return OidsChecked.push(item.Oid)
-    })
+    companyChecked.map((item) => {
+      return OidsChecked.push(item.Oid);
+    });
     const ischecked = OidsChecked.includes(company.Oid);
     if (ischecked) {
-      const index = companyChecked.findIndex(item => item.Oid === company.Oid);
+      const index = companyChecked.findIndex(
+        (item) => item.Oid === company.Oid
+      );
       companyChecked.splice(index, 1);
       setCompanyChecked((prev) => {
         return [...companyChecked];
@@ -82,17 +106,24 @@ const Table = () => {
     return false;
   };
 
-  const checkedCheckboxElement = (Oid)=>{
+  const checkedCheckboxElement = (Oid) => {
     const OidsChecked = [];
-    companyChecked.map(item=>{
-      return OidsChecked.push(item.Oid)
-    })
+    companyChecked.map((item) => {
+      return OidsChecked.push(item.Oid);
+    });
     return OidsChecked.includes(Oid);
-  }
+  };
 
   return (
-    <div className="table">
-      <div className="float-end">
+    <div className="p-4">
+      <div className="float-end my-2">
+        <MDBBtn
+          className="mx-2"
+          color="success"
+          onClick={handleClickOpenDialog}
+        >
+          Thêm mới
+        </MDBBtn>
         <MDBBtn
           onClick={() => handleEdit(companyChecked)}
           className="mx-2"
@@ -109,15 +140,11 @@ const Table = () => {
         >
           Xóa
         </MDBBtn>
-        <button
-          onClick={handleReload}
-          type="button"
-          className="btn btn-info float-end"
-        >
+        <MDBBtn onClick={handleReload} type="button" className="secondary">
           Đồng bộ
-        </button>
+        </MDBBtn>
       </div>
-      <MDBTable>
+      <MDBTable bordered>
         <MDBTableHead>
           <tr>
             <th scope="col">
@@ -138,25 +165,37 @@ const Table = () => {
         </MDBTableHead>
         <MDBTableBody>
           {status === "loading" && "Loading"}
-          {status === "idle" &&
-            companys.map((company) => (
-              <tr key={company?.Oid}>
-                <input
-                  type="checkbox"
-                  checked={checkedCheckboxElement(company?.Oid)}
-                  onChange={() => handleChangeCheckedCompany(company)}
-                />
-                <td>{company?.Name}</td>
-                <td>{company?.Address}</td>
-                <td>{company?.Type}</td>
-                <td>
-                  {moment(company?.Created).format("dd-MM-YYYY, h:mm:ss a")}
-                </td>
-                <td></td>
-              </tr>
-            ))}
+          {status === "idle" && companys.length === 0
+            ? "Không có dữ liệu"
+            : companys.map((company) => (
+                <tr key={company?.Oid}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={checkedCheckboxElement(company?.Oid)}
+                      onChange={() => handleChangeCheckedCompany(company)}
+                    />
+                  </td>
+                  <td>{company?.Name}</td>
+                  <td>{company?.Address}</td>
+                  <td>{company?.Type}</td>
+                  <td>
+                    {moment(company?.Created).format("dd-MM-YYYY, h:mm:ss a")}
+                  </td>
+                </tr>
+              ))}
         </MDBTableBody>
       </MDBTable>
+      {/* modal */}
+      <Dialog fullWidth open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>{type === "edit" ? "Sửa" : "Thêm"}</DialogTitle>
+        <DialogContent>
+          <Form setOpenDialog={setOpenDialog} openDialog={openDialog}/>
+        </DialogContent>
+        <DialogActions>
+
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

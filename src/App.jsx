@@ -15,8 +15,8 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Form />}></Route>
-          <Route path="/edit/:name" element={<Form type={"edit"}/>}></Route>
+          {/* <Route path="/" element={<Form />}></Route>
+          <Route path="/edit/:name" element={<Form type={"edit"}/>}></Route> */}
         </Routes>
         <Table />
       </BrowserRouter>
