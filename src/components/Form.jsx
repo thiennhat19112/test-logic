@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { addCompany, editCompany } from "../redux/companySlice";
@@ -10,7 +9,6 @@ import { useSnackbar } from "notistack";
 import { closeDigLog } from "../redux/dialogSlice";
 import { styled } from "@mui/system";
 import { initCompanyValue } from "../innitValue";
-import { useRef } from "react";
 import { useForm } from "react-hook-form";
 const InputContainer = styled("div")`
   display: flex;
@@ -27,32 +25,35 @@ const Form = () => {
   const type = location.pathname.split("/")[1];
   const param = location.pathname.split("/")[2];
   const { enqueueSnackbar } = useSnackbar();
-  
+
   const {
     register,
     handleSubmit,
     watch,
-    setValue ,
-    formState: { errors }
-  } = useForm();
-
+    setValue,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      company : initCompanyValue
+    },
+  });
 
   const onSubmit = (data) => {
-    const variant = "success"
-    if(!checkedAgree) return setAgreeError(true);
-   if(type === "edit"){
-    console.log(data);
-    dispatch(editCompany({...location.state,data}));
-    navigative("/");
-    dispatch(closeDigLog())
-    enqueueSnackbar('Sửa thành công!', { variant });
-   }else{
-    console.log(data);
-    dispatch(addCompany(data))
-    dispatch(closeDigLog())
-    enqueueSnackbar('Thêm thành công!', { variant });
-   }
-   setCompany(initCompanyValue)
+    const variant = "success";
+    if (!checkedAgree) return setAgreeError(true);
+    if (type === "edit") {
+      dispatch(editCompany(data));
+      navigative("/");
+      dispatch(closeDigLog());
+      enqueueSnackbar("Sửa thành công!", { variant });
+    } else {
+      console.log(data);
+      dispatch(addCompany(data));
+      dispatch(closeDigLog());
+      enqueueSnackbar("Thêm thành công!", { variant });
+    }
+    setCompany(initCompanyValue);
   };
 
   const handleReset = (e) => {
@@ -70,9 +71,11 @@ const Form = () => {
   useEffect(() => {
     if (type === "edit") {
       const company = location.state;
-      setValue({
-        "Name": company.Name || "",
-        "Idc": company.Idc || "",
+      console.log(company);
+      setValue("company",{
+        Name: company.Name || "",
+        Idc: company.Idc || "",
+        Type : company.Type
       });
     }
   }, [param]);
@@ -81,30 +84,30 @@ const Form = () => {
     <form className="form" onSubmit={handleSubmit(onSubmit)}>
       <InputContainer className="form-outline my-2" spacing={3}>
         <TextField
-          error= {errors.Name}
-          {...register("Name",{ required: true })}
+          error={errors.Name}
+          {...register("company.Name", { required: true })}
           label="Name"
           variant="outlined"
           fullWidth
         />
         <TextField
-        error= {errors.Idc}
-          {...register("Idc",{ required: true })}
+          error={errors.Idc}
+          {...register("company.Idc", { required: true })}
           label="Idc"
           variant="outlined"
           fullWidth
         />
       </InputContainer>
       <div className="form-outline mb-4">
-        <select {...register("Type",{ required: true })} label="Type">
+        <select {...register("company.Type", { required: true })} label="Type">
           <option value="">Type</option>
-          <option selected={company.Type === "donvi"} value="donvi">
+          <option selected={watch(company.Type) === "donvi"} value="donvi">
             Đơn vị
           </option>
-          <option selected={company.Type === "phongban"} value="phongban">
+          <option selected={watch(company.Type) === "phongban"} value="phongban">
             Phòng ban
           </option>
-          <option selected={company.Type === "nhom"} value="nhom">
+          <option selected={watch(company.Type) === "nhom"} value="nhom">
             Nhóm
           </option>
         </select>
