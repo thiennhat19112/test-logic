@@ -1,129 +1,102 @@
-import { useEffect, useRef, useState } from "react";
-import { MDBInput } from "mdb-react-ui-kit";
+
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { addCompany, editCompany } from "../redux/companySlice";
 import { useLocation, useNavigate } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import Switch from "@mui/material/Switch";
 import { FormControlLabel } from "@mui/material";
+import { useSnackbar } from "notistack";
+import { closeDigLog } from "../redux/dialogSlice";
+import { styled } from "@mui/system";
+import { initCompanyValue } from "../innitValue";
+import { useRef } from "react";
+import { useForm } from "react-hook-form";
+const InputContainer = styled("div")`
+  display: flex;
+  gap: 1rem;
+`;
+
 const Form = () => {
-  const [company, setCompany] = useState({
-    Name: "",
-  });
+  const [company, setCompany] = useState(initCompanyValue);
   const [checkedAgree, setCheckedAgree] = useState(false);
-  const [errorElements, setErrorElement] = useState({
-    Name: false,
-  });
-
-
-  console.log(errorElements.Agree);
-  const checkbox = useRef(null);
+  const [agreeError, setAgreeError] = useState(false);
   const location = useLocation();
   const dispatch = useDispatch();
   const navigative = useNavigate();
   const type = location.pathname.split("/")[1];
   const param = location.pathname.split("/")[2];
+  const { enqueueSnackbar } = useSnackbar();
+  
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue ,
+    formState: { errors }
+  } = useForm();
+
+
+  const onSubmit = (data) => {
+    const variant = "success"
+    if(!checkedAgree) return setAgreeError(true);
+   if(type === "edit"){
+    console.log(data);
+    dispatch(editCompany({...location.state,data}));
+    navigative("/");
+    dispatch(closeDigLog())
+    enqueueSnackbar('Sửa thành công!', { variant });
+   }else{
+    console.log(data);
+    dispatch(addCompany(data))
+    dispatch(closeDigLog())
+    enqueueSnackbar('Thêm thành công!', { variant });
+   }
+   setCompany(initCompanyValue)
+  };
+
+  const handleReset = (e) => {
+    setCompany(initCompanyValue);
+
+    setCheckedAgree(false);
+    setAgreeError(false);
+  };
+
+  const handleChangAgree = (e) => {
+    setCheckedAgree(!checkedAgree);
+    setAgreeError(checkedAgree);
+  };
 
   useEffect(() => {
     if (type === "edit") {
-      const { Name, Address, Type, Oid, Created } = location.state;
-      setCompany({
-        Name: Name || "",
-        Address: Address || "",
-        Type: Type || "",
-        Oid: Oid,
-        Created: Created,
+      const company = location.state;
+      setValue({
+        "Name": company.Name || "",
+        "Idc": company.Idc || "",
       });
     }
   }, [param]);
 
-  const validate = () => {
-    if (!company.Name.trim()) {
-      setErrorElement((prev) => {
-        return { ...prev, Name: true };
-      });
-      return true;
-    }
-    return false;
-  };
-
-  const handleChange = (e) => {
-    if (type === "edit") {
-      setCompany((prev) => {
-        return { ...prev, [e.target.name]: e.target.value };
-      });
-    } else {
-      setCompany((prev) => {
-        return { ...prev, [e.target.name]: e.target.value };
-      });
-    }
-
-    setErrorElement((prev) => {
-      return { ...prev, [e.target.name]: false };
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    validate();
-    const isFormInValid = validate();
-    if (!isFormInValid) {
-      if (type === "edit") {
-        dispatch(editCompany({ company, param }));
-        navigative("/");
-      } else {
-        dispatch(addCompany(company));
-      }
-
-      setCompany({
-        Name: "",
-        Address: "",
-        Type: "",
-        Oid: "",
-      });
-      checkbox.current.checked = false;
-    }
-  };
-
-  const handleReset = (e) => {
-    setCompany({
-      Name: "",
-      Address: "",
-      Type: "",
-    });
-    setErrorElement({
-      Name: false,
-    });
-    checkbox.current.checked = false;
-  };
-
   return (
-    <form className="form" onSubmit={handleSubmit}>
-      <div className="form-outline mb-4">
-        <div className="form-outline">
-          <TextField
-            error={errorElements.Name}
-            name="Name"
-            onChange={handleChange}
-            value={company?.Name}
-            label="Name"
-            variant="outlined"
-            defaultValue={type === "edit" ? company?.Name : ""}
-          />
-        </div>
-      </div>
-      <div className="form-outline mb-4">
-        <MDBInput
-          onChange={handleChange}
-          name="Address"
-          label="Address"
-          id="form1"
-          type="text"
-          value={company?.Address}
+    <form className="form" onSubmit={handleSubmit(onSubmit)}>
+      <InputContainer className="form-outline my-2" spacing={3}>
+        <TextField
+          error= {errors.Name}
+          {...register("Name",{ required: true })}
+          label="Name"
+          variant="outlined"
+          fullWidth
         />
-      </div>
+        <TextField
+        error= {errors.Idc}
+          {...register("Idc",{ required: true })}
+          label="Idc"
+          variant="outlined"
+          fullWidth
+        />
+      </InputContainer>
       <div className="form-outline mb-4">
-        <select onChange={handleChange} name="Type" label="Type">
+        <select {...register("Type",{ required: true })} label="Type">
           <option value="">Type</option>
           <option selected={company.Type === "donvi"} value="donvi">
             Đơn vị
@@ -136,16 +109,20 @@ const Form = () => {
           </option>
         </select>
       </div>
-      <FormControlLabel
-        control={
-          <Switch
-            checked={checkedAgree}
-            onChange={() => setCheckedAgree(!checkedAgree)}
-            inputProps={{ "aria-label": "controlled" }}
-          />
-        }
-        label={"Đồng ý"}
-      />
+      <div className="form-outline">
+        <FormControlLabel
+          control={
+            <Switch
+              checked={checkedAgree}
+              onChange={handleChangAgree}
+              inputProps={{ "aria-label": "controlled" }}
+              name="Agree"
+            />
+          }
+          label={"Đồng ý"}
+        />
+        {agreeError && <span style={{ color: "red" }}>Ban chua dong y</span>}
+      </div>
       {type === "edit" ? (
         <button type="submit" className="btn btn-primary btn-block mb-4">
           Edit

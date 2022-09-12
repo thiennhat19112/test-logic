@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { getCompanys } from "./redux/companySlice";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
+import { SnackbarProvider } from "notistack";
 function App() {
   const dispatch = useDispatch();
   useEffect(() => {
@@ -18,7 +18,9 @@ function App() {
           {/* <Route path="/" element={<Form />}></Route>
           <Route path="/edit/:name" element={<Form type={"edit"}/>}></Route> */}
         </Routes>
-        <Table />
+        <SnackbarProvider maxSnack={3}>
+          <Table />
+        </SnackbarProvider>
       </BrowserRouter>
     </div>
   );
