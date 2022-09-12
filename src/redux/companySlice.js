@@ -14,11 +14,11 @@ const companySlice = createSlice({
     },
 
     editCompany: (state, action) => {
-      console.log(action.payload.company);
+      console.log(action.payload);
       const index = state.companys.findIndex(
-        (item) => item.Oid === action.payload.param
+        (item) => item.Oid === action.payload.Oid
       );
-      state.companys.splice(index, 1, action.payload.company);
+      state.companys.splice(index, 1, action.payload);
     },
 
     deleteCompany: (state, action) => {

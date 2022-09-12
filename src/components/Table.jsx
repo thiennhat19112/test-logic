@@ -1,4 +1,13 @@
-import { MDBTable, MDBTableHead, MDBTableBody, MDBBtn } from "mdb-react-ui-kit";
+import {
+  MDBTable,
+  MDBTableHead,
+  MDBTableBody,
+  MDBModal,
+  MDBModalDialog,
+  MDBModalContent,
+  MDBModalBody,
+  MDBBtn,
+} from "mdb-react-ui-kit";
 import Dialog from "@mui/material/Dialog";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -8,17 +17,13 @@ import moment from "moment";
 import Form from "./Form";
 import { useSnackbar } from "notistack";
 import { closeDigLog, openDigLog } from "../redux/dialogSlice";
-import {
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from "@mui/material";
-
+import { DialogActions, DialogContent, DialogTitle } from "@mui/material";
 
 const Table = () => {
   const { status, companys } = useSelector((state) => state.companys);
-  const {open} = useSelector((state) => state.digLog)
+  const { open } = useSelector((state) => state.digLog);
   const [companyChecked, setCompanyChecked] = useState([]);
+  const [confirmModal,setConFirmModal] = useState(false)
   const checkAllElement = useRef(false);
   const isMounted = useRef(false);
   const [checkedAll, setCheckAll] = useState(false);
@@ -28,12 +33,11 @@ const Table = () => {
   const type = location.pathname.split("/")[1];
   const { enqueueSnackbar } = useSnackbar();
 
-
   const handleEdit = (company) => {
     dispatch(openDigLog());
     setCompanyChecked([]);
-    const { Name, Address, Type, Oid, Created } = company[0];
-    navigate(`/edit/${Oid}`, { state: { Name, Address, Type, Oid, Created } });
+    const { Oid } = company[0];
+    navigate(`/edit/${Oid}`, { state: { ...company[0] } });
   };
 
   const handleClickOpenDialog = () => {
@@ -83,13 +87,12 @@ const Table = () => {
     setCheckAll(!checkedAll);
   };
 
-  const handleDelete = (e,variant) => {
-    if (window.confirm(`Xóa ${companyChecked.length} item`)) {
+  const handleDelete = (e, variant) => {
       dispatch(deleteCompany(companyChecked));
       setCompanyChecked([]);
       setCheckAll(false);
       enqueueSnackbar("Xóa thành công!", { variant });
-    }
+      setConFirmModal(false)
     e.preventDefault();
   };
 
@@ -137,7 +140,7 @@ const Table = () => {
         </MDBBtn>
         <MDBBtn
           disabled={!(companyChecked.length > 0)}
-          onClick={(e)=>handleDelete(e,"success")}
+          onClick={()=>setConFirmModal(true)}
           className="mx-2"
           color="danger"
         >
@@ -190,13 +193,43 @@ const Table = () => {
         </MDBTableBody>
       </MDBTable>
       {/* modal */}
-      <Dialog   open={open} onClose={handleCloseDialog}>
+      <Dialog fullWidth maxWidth="lg" open={open} onClose={handleCloseDialog}>
         <DialogTitle>{type === "edit" ? "Sửa" : "Thêm"}</DialogTitle>
         <DialogContent>
           <Form />
         </DialogContent>
         <DialogActions></DialogActions>
       </Dialog>
+      {/* confirm */}
+      <MDBModal
+        animationDirection="bottom"
+        show={confirmModal}
+        tabIndex="-1"
+        setShow={setConFirmModal}
+      >
+        <MDBModalDialog position="bottom" frame>
+          <MDBModalContent>
+            <MDBModalBody className="py-1">
+              <div className="d-flex justify-content-center align-items-center my-3">
+                <p className="mb-0">
+                 Bạn muốn xoá {companyChecked.length} item
+                </p>
+                <MDBBtn
+                  color="success"
+                  size="sm"
+                  className="ms-2"
+                  onClick={(e) => handleDelete(e, "success")}
+                >
+                  Đồng ý
+                </MDBBtn>
+                <MDBBtn color="danger" onClick={()=>setConFirmModal(false)} size="sm" className="ms-2">
+                  Đóng
+                </MDBBtn>
+              </div>
+            </MDBModalBody>
+          </MDBModalContent>
+        </MDBModalDialog>
+      </MDBModal>
     </div>
   );
 };
