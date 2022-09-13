@@ -17,13 +17,20 @@ import moment from "moment";
 import Form from "./Form";
 import { useSnackbar } from "notistack";
 import { closeDigLog, openDigLog } from "../redux/dialogSlice";
-import { DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import {
+  CircularProgress,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 const Table = () => {
   const { status, companys } = useSelector((state) => state.companys);
   const { open } = useSelector((state) => state.digLog);
   const [companyChecked, setCompanyChecked] = useState([]);
-  const [confirmModal,setConFirmModal] = useState(false)
+  const [confirmModal, setConFirmModal] = useState(false);
   const checkAllElement = useRef(false);
   const isMounted = useRef(false);
   const [checkedAll, setCheckAll] = useState(false);
@@ -34,8 +41,11 @@ const Table = () => {
   const { enqueueSnackbar } = useSnackbar();
 
   const handleEdit = (company) => {
+    console.log(company);
     dispatch(openDigLog());
-    setCompanyChecked([]);
+    setCompanyChecked(()=>{
+      return company
+    });
     const { Oid } = company[0];
     navigate(`/edit/${Oid}`, { state: { ...company[0] } });
   };
@@ -46,6 +56,7 @@ const Table = () => {
 
   const handleCloseDialog = () => {
     dispatch(closeDigLog());
+    navigate("/");
   };
 
   const handleReload = (e) => {
@@ -88,11 +99,11 @@ const Table = () => {
   };
 
   const handleDelete = (e, variant) => {
-      dispatch(deleteCompany(companyChecked));
-      setCompanyChecked([]);
-      setCheckAll(false);
-      enqueueSnackbar("Xóa thành công!", { variant });
-      setConFirmModal(false)
+    dispatch(deleteCompany(companyChecked));
+    setCompanyChecked([]);
+    setCheckAll(false);
+    enqueueSnackbar("Xóa thành công!", { variant });
+    setConFirmModal(false);
     e.preventDefault();
   };
 
@@ -140,7 +151,7 @@ const Table = () => {
         </MDBBtn>
         <MDBBtn
           disabled={!(companyChecked.length > 0)}
-          onClick={()=>setConFirmModal(true)}
+          onClick={() => setConFirmModal(true)}
           className="mx-2"
           color="danger"
         >
@@ -150,7 +161,9 @@ const Table = () => {
           Đồng bộ
         </MDBBtn>
       </div>
-      <MDBTable bordered>
+      {status === "loading" && <CircularProgress className="position-absolute top-50 start-50 translate-middle"/>}
+      {status === "idle" && (
+      <MDBTable className="mb-0" bordered>
         <MDBTableHead>
           <tr>
             <th scope="col">
@@ -169,11 +182,12 @@ const Table = () => {
             <th scope="col">Created</th>
           </tr>
         </MDBTableHead>
-        <MDBTableBody>
-          {status === "loading" && "Loading"}
-          {status === "idle" && companys.length === 0
-            ? "Không có dữ liệu"
-            : companys.map((company) => (
+        
+          <MDBTableBody>
+            {companys.length === 0 ? (
+              <tr>"Không có dữ liệu!"</tr>
+            ) : (
+              companys.map((company) => (
                 <tr key={company?.Oid}>
                   <td>
                     <input
@@ -189,12 +203,24 @@ const Table = () => {
                     {moment(company?.Created).format("dd-MM-YYYY, h:mm:ss a")}
                   </td>
                 </tr>
-              ))}
-        </MDBTableBody>
+              ))
+            )}
+          </MDBTableBody>
       </MDBTable>
+      )}
       {/* modal */}
       <Dialog fullWidth maxWidth="lg" open={open} onClose={handleCloseDialog}>
-        <DialogTitle>{type === "edit" ? "Sửa" : "Thêm"}</DialogTitle>
+        <DialogTitle className="d-flex justify-content-between">
+          {type === "edit" ? "Sửa" : "Thêm"}
+          <IconButton
+            edge="start"
+            color="inherit"
+            onClick={handleCloseDialog}
+            aria-label="close"
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
         <DialogContent>
           <Form />
         </DialogContent>
@@ -212,7 +238,7 @@ const Table = () => {
             <MDBModalBody className="py-1">
               <div className="d-flex justify-content-center align-items-center my-3">
                 <p className="mb-0">
-                 Bạn muốn xoá {companyChecked.length} item
+                  Bạn muốn xoá {companyChecked.length} item
                 </p>
                 <MDBBtn
                   color="success"
@@ -222,7 +248,12 @@ const Table = () => {
                 >
                   Đồng ý
                 </MDBBtn>
-                <MDBBtn color="danger" onClick={()=>setConFirmModal(false)} size="sm" className="ms-2">
+                <MDBBtn
+                  color="danger"
+                  onClick={() => setConFirmModal(false)}
+                  size="sm"
+                  className="ms-2"
+                >
                   Đóng
                 </MDBBtn>
               </div>

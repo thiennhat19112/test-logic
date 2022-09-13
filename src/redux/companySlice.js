@@ -3,7 +3,7 @@ import axios from "axios";
 
 const companySlice = createSlice({
   name: "company",
-  initialState: { status: "idle", companys: [] },
+  initialState: { status: "loading", companys: [] },
   reducers: {
     addCompany: (state, action) => {
       console.log(1);

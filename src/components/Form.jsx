@@ -9,8 +9,10 @@ import { useSnackbar } from "notistack";
 import { closeDigLog } from "../redux/dialogSlice";
 import { styled } from "@mui/system";
 import { initCompanyValue } from "../innitValue";
-import { useForm } from "react-hook-form";
-import MenuItem from "@mui/material/MenuItem";
+import { Controller, useForm } from "react-hook-form";
+import Button from "@mui/material/Button";
+import LinearProgress from '@mui/material/LinearProgress';
+
 const InputContainer = styled("div")`
   display: flex;
   gap: 1rem;
@@ -32,6 +34,7 @@ const Form = () => {
     watch,
     setValue,
     reset,
+    control,
     formState: { errors },
   } = useForm({
     mode: "onChange",
@@ -39,8 +42,6 @@ const Form = () => {
       company: initCompanyValue,
     },
   });
-  console.log(watch());
-  const Type = watch("company.Type");
   const onSubmit = (data) => {
     const variant = "success";
     const { company } = data;
@@ -81,47 +82,53 @@ const Form = () => {
         Name: company.Name || "",
         Idc: company.Idc || "",
         Type: company.Type || "",
-        ParentDepartmentOid : company.company || "",
-        DepartmentByParentGroupOid : company.DepartmentByParentGroupOid || "",
-        Ordinal : company.Ordinal || "",
-        Address : company.Address || "",
-        PhoneNumber : company.PhoneNumber || "",
-        Email : company.Email || "",
-        Photo : company.Photo || "",
-        ReceivingLevel : company.ReceivingLevel || "",
-        StaffPhoneNumber : company.StaffPhoneNumber || "",
-        HeadPhoneNumber : company.HeadPhoneNumber || "",
-        StaffEmail : company.StaffEmail || "",
-        EmailOfTheHead : company.EmailOfTheHead || "",
-        EmailCchc1 : company.EmailCchc1 || "",
-        EmailCchc2 : company.EmailCchc2 || "",
-        AgencyNameSms : company.AgencyNameSms || "",
-        PostalCode : company.PostalCode || "",
-        IsNhanHslienThong : company.IsNhanHslienThong || "",
-        TaxCode : company.TaxCode || "",
-        CountryManagementCode : company.CountryManagementCode || "",
-        IsCheckInvoicePrinting : company.IsCheckInvoicePrinting || "",
-        InvoiceSymbolNumber : company.InvoiceSymbolNumber || "",
-        BeneficiaryAccountNumber : company.BeneficiaryAccountNumber || "",
-        BeneficiaryAccountName : company.BeneficiaryAccountName || "",
-        StateTreasuryAccountNumber : company.StateTreasuryAccountNumber || "",
-        StateTreasuryAccountCode : company.StateTreasuryAccountCode || "",
-        StateTreasuryAccountName : company.StateTreasuryAccountName || "",
-        IsConnectResidential : company.IsConnectResidential || "",
-        KeyConnectElectronicResidential : company.KeyConnectElectronicResidential || "",
-        Hrmoid : company.Hrmoid || "",
-        HrmchaOid : company.HrmchaOid || "",
-        IsParent : company.IsParent || "",
-        JoinUnit : company.JoinUnit || "",
-        JoninUnitGroup : company.JoninUnitGroup || "",
-        Departments : company.Departments || "",
+        ParentDepartmentOid: company.ParentDepartmentOid || "",
+        DepartmentByParentGroupOid: company.DepartmentByParentGroupOid || "",
+        Ordinal: company.Ordinal || "",
+        BeneficiaryBankCodeDvcqg : company.BeneficiaryBankCodeDvcqg || "",
+        Address: company.Address || "",
+        PhoneNumber: company.PhoneNumber || "",
+        Email: company.Email || "",
+        Photo: company.Photo || "",
+        ReceivingLevel: company.ReceivingLevel || "",
+        StaffPhoneNumber: company.StaffPhoneNumber || "",
+        HeadPhoneNumber: company.HeadPhoneNumber || "",
+        StaffEmail: company.StaffEmail || "",
+        EmailOfTheHead: company.EmailOfTheHead || "",
+        EmailCchc1: company.EmailCchc1 || "",
+        EmailCchc2: company.EmailCchc2 || "",
+        AgencyNameSms: company.AgencyNameSms || "",
+        PostalCode: company.PostalCode || "",
+        IsNhanHslienThong: company.IsNhanHslienThong || "",
+        TaxCode: company.TaxCode || "",
+        CountryManagementCode: company.CountryManagementCode || "",
+        IsCheckInvoicePrinting: company.IsCheckInvoicePrinting || "",
+        InvoiceSymbolNumber: company.InvoiceSymbolNumber || "",
+        BeneficiaryAccountNumber: company.BeneficiaryAccountNumber || "",
+        BeneficiaryAccountName: company.BeneficiaryAccountName || "",
+        StateTreasuryAccountNumber: company.StateTreasuryAccountNumber || "",
+        StateTreasuryAccountCode: company.StateTreasuryAccountCode || "",
+        StateTreasuryAccountName: company.StateTreasuryAccountName || "",
+        IsConnectResidential: company.IsConnectResidential || "",
+        KeyConnectElectronicResidential:
+          company.KeyConnectElectronicResidential || "",
+        Hrmoid: company.Hrmoid || "",
+        HrmchaOid: company.HrmchaOid || "",
+        IsParent: company.IsParent || "",
+        JoinUnit: company.JoinUnit || "",
+        JoninUnitGroup: company.JoninUnitGroup || "",
+        Departments: company.Departments || "",
+        BeneficiaryBankNameDvcqg : company.BeneficiaryBankNameDvcqg  || ""
       });
     }
   }, [Oid]);
 
+ 
+
+
   return (
     <form className="form" onSubmit={handleSubmit(onSubmit)}>
-      <InputContainer className="form-outline my-2">
+      <InputContainer className="form-outline my-4">
         <TextField
           {...register("company.Name", { required: true })}
           error={!!errors?.company?.Name}
@@ -136,17 +143,20 @@ const Form = () => {
           variant="outlined"
           fullWidth
         />
-         <select {...register("company.ParentDepartmentOid", { required: true })} label="ParentDepartmentOid">
-         <option value="">ParentDepartmentOid</option>
-          <option selected={watch(company.ParentDepartmentOid) === "donvi"} value="a">
-            Nguyen van a
-          </option>
-        </select>
+        <TextField
+          {...register("company.BeneficiaryBankCodeDvcqg", { required: true })}
+          error={!!errors?.company?.BeneficiaryBankCodeDvcqg}
+          label="BeneficiaryBankCodeDvcqg"
+          variant="outlined"
+          fullWidth
+        />
       </InputContainer>
 
-      <InputContainer className="form-outline my-2">
+      <InputContainer className="form-outline my-4">
         <TextField
-          {...register("company.DepartmentByParentGroupOid", { required: true })}
+          {...register("company.DepartmentByParentGroupOid", {
+            required: true,
+          })}
           error={!!errors?.company?.DepartmentByParentGroupOid}
           label="DepartmentByParentGroupOid"
           variant="outlined"
@@ -158,7 +168,7 @@ const Form = () => {
           label="Ordinal"
           variant="outlined"
           fullWidth
-          inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+          inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
         />
         <TextField
           {...register("company.Address", { required: true })}
@@ -167,39 +177,29 @@ const Form = () => {
           variant="outlined"
           fullWidth
         />
+      </InputContainer>
+
+      <InputContainer className="form-outline my-4">
         <TextField
           {...register("company.PhoneNumber", { required: true })}
           error={!!errors?.company?.PhoneNumber}
           label="PhoneNumber"
           variant="outlined"
-          inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+          inputProps={{
+            inputMode: "numeric",
+            pattern: "[0-9]*",
+            maxLength: 10,
+            minLength: 10,
+          }}
           fullWidth
         />
-      </InputContainer>
-
-      <InputContainer className="form-outline my-2">
-        <select {...register("company.Type", { required: true })} label="Type">
-          <option value="">Type</option>
-          <option selected={watch(company.Type) === "donvi"} value="donvi">
-            Đơn vị
-          </option>
-          <option
-            selected={watch(company.Type) === "phongban"}
-            value="phongban"
-          >
-            Phòng ban
-          </option>
-          <option selected={watch(company.Type) === "nhom"} value="nhom">
-            Nhóm
-          </option>
-        </select>
         <TextField
           {...register("company.Email", { required: true })}
           error={!!errors?.company?.Email}
           label="Email"
           variant="outlined"
           fullWidth
-          email
+          type="email"
         />
         <TextField
           {...register("company.JoninUnitGroup", { required: true })}
@@ -210,7 +210,7 @@ const Form = () => {
         />
       </InputContainer>
 
-      <InputContainer className="form-outline my-2">
+      <InputContainer className="form-outline my-4">
         <TextField
           {...register("company.Photo", { required: true })}
           error={!!errors?.company?.Photo}
@@ -226,88 +226,50 @@ const Form = () => {
           fullWidth
         />
         <TextField
-          {...register("company.StaffPhoneNumber", { required: true })}
-          error={!!errors?.company?.StaffPhoneNumber}
-          label="StaffPhoneNumber"
-          variant="outlined"
-          inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-          fullWidth
-        />
-      </InputContainer>
-
-      <InputContainer className="form-outline my-2">
-        <TextField
-          {...register("company.StaffPhoneNumber", { required: true })}
-          error={!!errors?.company?.StaffPhoneNumber}
-          label="StaffPhoneNumber"
-          variant="outlined"
-          fullWidth
-          inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-        />
-        <TextField
           {...register("company.HeadPhoneNumber", { required: true })}
           error={!!errors?.company?.HeadPhoneNumber}
           label="HeadPhoneNumber"
           variant="outlined"
           fullWidth
-          inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+          inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
         />
+      </InputContainer>
+
+      <InputContainer className="form-outline my-4">
+        <TextField
+          {...register("company.StaffPhoneNumber", { required: true })}
+          error={!!errors?.company?.StaffPhoneNumber}
+          label="StaffPhoneNumber"
+          variant="outlined"
+          fullWidth
+          inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+        />
+
         <TextField
           {...register("company.StaffEmail", { required: true })}
           error={!!errors?.company?.StaffEmail}
           label="StaffEmail"
           variant="outlined"
           fullWidth
+          type="email"
         />
         <TextField
           {...register("company.EmailOfTheHead", { required: true })}
           error={!!errors?.company?.EmailOfTheHead}
           label="EmailOfTheHead"
           variant="outlined"
-          inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+          type="mail"
           fullWidth
         />
       </InputContainer>
 
-      <InputContainer className="form-outline my-2">
-        <TextField
-          {...register("company.EmailCchc1", { required: true })}
-          error={!!errors?.company?.EmailCchc1}
-          label="EmailCchc1"
-          variant="outlined"
-          fullWidth
-        />
-        <TextField
-          {...register("company.EmailCchc2", { required: true })}
-          error={!!errors?.company?.EmailCchc2}
-          label="EmailCchc2"
-          variant="outlined"
-          fullWidth
-        />
-         <TextField
-          {...register("company.AgencyNameSms", { required: true })}
-          error={!!errors?.company?.AgencyNameSms}
-          label="AgencyNameSms"
-          variant="outlined"
-          fullWidth
-        />
-      </InputContainer>
-
-      <InputContainer className="form-outline my-2">
-        <TextField
-          {...register("company.IsNhanHslienThong", { required: true })}
-          error={!!errors?.company?.IsNhanHslienThong}
-          label="IsNhanHslienThong"
-          variant="outlined"
-          fullWidth
-        />
+      <InputContainer className="form-outline my-4">
         <TextField
           {...register("company.TaxCode", { required: true })}
           error={!!errors?.company?.TaxCode}
           label="TaxCode"
           variant="outlined"
           fullWidth
-          inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
         />
         <TextField
           {...register("company.CountryManagementCode", { required: true })}
@@ -317,22 +279,22 @@ const Form = () => {
           fullWidth
         />
         <TextField
-          {...register("company.InvoiceSymbolNumber", { required: true })}
-          error={!!errors?.company?.InvoiceSymbolNumber}
-          label="InvoiceSymbolNumber"
+          {...register("company.PostalCode", { required: true })}
+          error={!!errors?.company?.PostalCode}
+          label="PostalCode"
           variant="outlined"
-          inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
           fullWidth
         />
       </InputContainer>
 
-      <InputContainer className="form-outline my-2">
+      <InputContainer className="form-outline my-4">
         <TextField
           {...register("company.EmailCchc1", { required: true })}
           error={!!errors?.company?.EmailCchc1}
           label="EmailCchc1"
           variant="outlined"
           fullWidth
+          type="email"
         />
         <TextField
           {...register("company.EmailCchc2", { required: true })}
@@ -340,24 +302,35 @@ const Form = () => {
           label="EmailCchc2"
           variant="outlined"
           fullWidth
+          type="email"
         />
-         <TextField
-          {...register("company.IsCheckInvoicePrinting", { required: true })}
-          error={!!errors?.company?.IsCheckInvoicePrinting}
-          label="IsCheckInvoicePrinting"
-          variant="outlined"
-          fullWidth
-        />
+         <select
+          {...register("company.ParentDepartmentOid", { required: true })}
+          label="ParentDepartmentOid"
+          className={
+            !!errors?.company?.ParentDepartmentOid
+              ? "square border border-danger text-danger w-100 rounded-3"
+              : "square border text-muted w-100 rounded-3"
+          }
+        >
+          <option value="">ParentDepartmentOid</option>
+          <option
+            selected={watch(company.ParentDepartmentOid) === "donvi"}
+            value="a"
+          >
+            Nguyen van a
+          </option>
+        </select>
       </InputContainer>
 
-      <InputContainer className="form-outline my-2">
+      <InputContainer className="form-outline my-4">
         <TextField
           {...register("company.InvoiceSymbolNumber", { required: true })}
           error={!!errors?.company?.InvoiceSymbolNumber}
           label="InvoiceSymbolNumber"
           variant="outlined"
           fullWidth
-          inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+          inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
         />
         <TextField
           {...register("company.BeneficiaryAccountNumber", { required: true })}
@@ -365,7 +338,7 @@ const Form = () => {
           label="BeneficiaryAccountNumber"
           variant="outlined"
           fullWidth
-          inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+          inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
         />
         <TextField
           {...register("company.BeneficiaryAccountName", { required: true })}
@@ -374,17 +347,9 @@ const Form = () => {
           variant="outlined"
           fullWidth
         />
-        <TextField
-          {...register("company.BeneficiaryBankCodeDvcqg", { required: true })}
-          error={!!errors?.company?.BeneficiaryBankCodeDvcqg}
-          label="BeneficiaryBankCodeDvcqg"
-          variant="outlined"
-          inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-          fullWidth
-        />
       </InputContainer>
 
-      <InputContainer className="form-outline my-2">
+      <InputContainer className="form-outline my-4">
         <TextField
           {...register("company.BeneficiaryBankNameDvcqg", { required: true })}
           error={!!errors?.company?.BeneficiaryBankNameDvcqg}
@@ -393,13 +358,16 @@ const Form = () => {
           fullWidth
         />
         <TextField
-          {...register("company.StateTreasuryAccountNumber", { required: true })}
+          {...register("company.StateTreasuryAccountNumber", {
+            required: true,
+          })}
           error={!!errors?.company?.StateTreasuryAccountNumber}
           label="StateTreasuryAccountNumber"
           variant="outlined"
           fullWidth
+          inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
         />
-         <TextField
+        <TextField
           {...register("company.StateTreasuryAccountCode", { required: true })}
           error={!!errors?.company?.StateTreasuryAccountCode}
           label="StateTreasuryAccountCode"
@@ -408,7 +376,7 @@ const Form = () => {
         />
       </InputContainer>
 
-      <InputContainer className="form-outline my-2">
+      <InputContainer className="form-outline my-4">
         <TextField
           {...register("company.StateTreasuryAccountName", { required: true })}
           error={!!errors?.company?.StateTreasuryAccountName}
@@ -417,14 +385,9 @@ const Form = () => {
           fullWidth
         />
         <TextField
-          {...register("company.IsConnectResidential", { required: true })}
-          error={!!errors?.company?.IsConnectResidential}
-          label="IsConnectResidential"
-          variant="outlined"
-          fullWidth
-        />
-         <TextField
-          {...register("company.KeyConnectElectronicResidential", { required: true })}
+          {...register("company.KeyConnectElectronicResidential", {
+            required: true,
+          })}
           error={!!errors?.company?.KeyConnectElectronicResidential}
           label="KeyConnectElectronicResidential"
           variant="outlined"
@@ -439,14 +402,7 @@ const Form = () => {
         />
       </InputContainer>
 
-      <InputContainer className="form-outline my-2">
-        <TextField
-          {...register("company.IsParent", { required: true })}
-          error={!!errors?.company?.IsParent}
-          label="IsParent"
-          variant="outlined"
-          fullWidth
-        />
+      <InputContainer className="form-outline my-4">
         <TextField
           {...register("company.Departments", { required: true })}
           error={!!errors?.company?.Departments}
@@ -454,17 +410,114 @@ const Form = () => {
           variant="outlined"
           fullWidth
         />
-         <TextField
+        <TextField
           {...register("company.JoinUnit", { required: true })}
           error={!!errors?.company?.JoinUnit}
           label="JoinUnit"
           variant="outlined"
           fullWidth
         />
+
+        <TextField
+          {...register("company.AgencyNameSms", { required: true })}
+          error={!!errors?.company?.AgencyNameSms}
+          label="AgencyNameSms"
+          variant="outlined"
+          fullWidth
+        />
       </InputContainer>
 
+      <InputContainer>
+        <Controller
+          name="company.IsCheckInvoicePrinting"
+          control={control}
+          render={({ field }) => (
+            <FormControlLabel
+              {...field}
+              control={
+                <Switch
+                  // checked={type === "edit" ? (company.IsNhanHslienThong ? true : false) : false}
+                  inputProps={{ "aria-label": "controlled" }}
+                />
+              }
+              label={"IsCheckInvoicePrinting"}
+            />
+          )}
+        ></Controller>
+        <Controller
+          name="company.IsParent"
+          control={control}
+          render={({ field }) => (
+            <FormControlLabel
+              {...field}
+              control={
+                <Switch
+                  // checked={type === "edit" ? (company.IsNhanHslienThong ? true : false) : false}
+                  inputProps={{ "aria-label": "controlled" }}
+                />
+              }
+              label={"IsParent"}
+            />
+          )}
+        ></Controller>
+        <Controller
+          name="company.IsConnectResidential"
+          control={control}
+          render={({ field }) => (
+            <FormControlLabel
+              {...field}
+              control={
+                <Switch
+                  // checked={type === "edit" ? (company.IsNhanHslienThong ? true : false) : false}
+                  inputProps={{ "aria-label": "controlled" }}
+                />
+              }
+              label={"IsConnectResidential"}
+            />
+          )}
+        ></Controller>
+        <Controller
+          name="company.IsNhanHslienThong"
+          control={control}
+          render={({ field }) => (
+            <FormControlLabel
+              {...field}
+              control={
+                <Switch
+                  // checked={type === "edit" ? (company.IsNhanHslienThong ? true : false) : false}
+                  inputProps={{ "aria-label": "controlled" }}
+                />
+              }
+              label={"IsNhanHslienThong"}
+            />
+          )}
+        ></Controller>
+        <select
+          className={
+            !!errors?.company?.Type
+              ? "square border border-danger p-3 text-danger rounded-3  w-100"
+              : "square border p-3 text-muted rounded-3  w-100"
+          }
+          {...register("company.Type", { required: true })}
+          label="Type"
+        >
+          <option value="">Type</option>
+          <option selected={watch(company.Type) === "donvi"} value="donvi">
+            Đơn vị
+          </option>
+          <option
+            selected={watch(company.Type) === "phongban"}
+            value="phongban"
+          >
+            Phòng ban
+          </option>
+          <option selected={watch(company.Type) === "nhom"} value="nhom">
+            Nhóm
+          </option>
+        </select>
+      </InputContainer>
 
-      <div className="form-outline">
+      <div className="form-outline my-5">
         <FormControlLabel
           control={
             <Switch
@@ -478,22 +531,30 @@ const Form = () => {
         />
         {agreeError && <span style={{ color: "red" }}>Ban chua dong y</span>}
       </div>
-      {type === "edit" ? (
-        <button type="submit" className="btn btn-primary btn-block mb-4">
-          Edit
-        </button>
-      ) : (
-        <button type="submit" className="btn btn-primary btn-block mb-4">
-          Submit
-        </button>
-      )}
-      <button
-        onClick={handleReset}
-        type="reset"
-        className="btn btn-primary btn-block mb-4"
-      >
-        Reset
-      </button>
+      <div className="d-flex justify-content-end">
+        {type === "edit" ? (
+          <Button
+            type="submit"
+            variant="contained"
+            className="mx-2"
+            color="success"
+          >
+            Edit
+          </Button>
+        ) : (
+          <Button className="mx-2" type="submit" variant="contained">
+            Submit
+          </Button>
+        )}
+        <Button
+          variant="contained"
+          className="mx-2"
+          onClick={handleReset}
+          type="reset"
+        >
+          Reset
+        </Button>
+      </div>
     </form>
   );
 };
