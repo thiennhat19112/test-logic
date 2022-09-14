@@ -1,17 +1,24 @@
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addCompany, editCompany } from "../redux/companySlice";
 import { useLocation, useNavigate } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import Switch from "@mui/material/Switch";
-import { FormControlLabel } from "@mui/material";
+import {
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  InputLabel,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import { useSnackbar } from "notistack";
 import { closeDigLog } from "../redux/dialogSlice";
 import { styled } from "@mui/system";
 import { initCompanyValue } from "../innitValue";
 import { Controller, useForm } from "react-hook-form";
 import Button from "@mui/material/Button";
-import LinearProgress from '@mui/material/LinearProgress';
+import { useRef } from "react";
 
 const InputContainer = styled("div")`
   display: flex;
@@ -19,7 +26,6 @@ const InputContainer = styled("div")`
 `;
 
 const Form = () => {
-  const [company, setCompany] = useState(initCompanyValue);
   const [checkedAgree, setCheckedAgree] = useState(false);
   const [agreeError, setAgreeError] = useState(false);
   const location = useLocation();
@@ -27,11 +33,13 @@ const Form = () => {
   const navigative = useNavigate();
   const type = location.pathname.split("/")[1];
   const Oid = location.pathname.split("/")[2];
+  const { companys } = useSelector((state) => state.companys);
+  const getCompany = companys.find((item) => item?.Oid === Oid);
   const { enqueueSnackbar } = useSnackbar();
+  let isMounted = useRef(false);
   const {
     register,
     handleSubmit,
-    watch,
     setValue,
     reset,
     control,
@@ -42,26 +50,25 @@ const Form = () => {
       company: initCompanyValue,
     },
   });
+
   const onSubmit = (data) => {
     const variant = "success";
     const { company } = data;
-    console.log({ ...company, Oid: Oid });
     if (!checkedAgree) return setAgreeError(true);
     if (type === "edit") {
+      console.log(company);
       dispatch(editCompany({ ...company, Oid: Oid }));
-      navigative("/");
       dispatch(closeDigLog());
+      navigative("/");
       enqueueSnackbar("Sửa thành công!", { variant });
     } else {
       dispatch(addCompany(company));
       dispatch(closeDigLog());
       enqueueSnackbar("Thêm thành công!", { variant });
     }
-    setCompany(initCompanyValue);
   };
 
   const handleReset = (e) => {
-    setCompany(initCompanyValue);
     setValue("company", initCompanyValue);
     setCheckedAgree(false);
     setAgreeError(false);
@@ -74,57 +81,58 @@ const Form = () => {
   };
 
   useEffect(() => {
-    if (type === "edit") {
-      console.log(location.state);
-      const company = location.state;
-      setCompany(company);
-      setValue("company", {
-        Name: company.Name || "",
-        Idc: company.Idc || "",
-        Type: company.Type || "",
-        ParentDepartmentOid: company.ParentDepartmentOid || "",
-        DepartmentByParentGroupOid: company.DepartmentByParentGroupOid || "",
-        Ordinal: company.Ordinal || "",
-        BeneficiaryBankCodeDvcqg : company.BeneficiaryBankCodeDvcqg || "",
-        Address: company.Address || "",
-        PhoneNumber: company.PhoneNumber || "",
-        Email: company.Email || "",
-        Photo: company.Photo || "",
-        ReceivingLevel: company.ReceivingLevel || "",
-        StaffPhoneNumber: company.StaffPhoneNumber || "",
-        HeadPhoneNumber: company.HeadPhoneNumber || "",
-        StaffEmail: company.StaffEmail || "",
-        EmailOfTheHead: company.EmailOfTheHead || "",
-        EmailCchc1: company.EmailCchc1 || "",
-        EmailCchc2: company.EmailCchc2 || "",
-        AgencyNameSms: company.AgencyNameSms || "",
-        PostalCode: company.PostalCode || "",
-        IsNhanHslienThong: company.IsNhanHslienThong || "",
-        TaxCode: company.TaxCode || "",
-        CountryManagementCode: company.CountryManagementCode || "",
-        IsCheckInvoicePrinting: company.IsCheckInvoicePrinting || "",
-        InvoiceSymbolNumber: company.InvoiceSymbolNumber || "",
-        BeneficiaryAccountNumber: company.BeneficiaryAccountNumber || "",
-        BeneficiaryAccountName: company.BeneficiaryAccountName || "",
-        StateTreasuryAccountNumber: company.StateTreasuryAccountNumber || "",
-        StateTreasuryAccountCode: company.StateTreasuryAccountCode || "",
-        StateTreasuryAccountName: company.StateTreasuryAccountName || "",
-        IsConnectResidential: company.IsConnectResidential || "",
-        KeyConnectElectronicResidential:
-          company.KeyConnectElectronicResidential || "",
-        Hrmoid: company.Hrmoid || "",
-        HrmchaOid: company.HrmchaOid || "",
-        IsParent: company.IsParent || "",
-        JoinUnit: company.JoinUnit || "",
-        JoninUnitGroup: company.JoninUnitGroup || "",
-        Departments: company.Departments || "",
-        BeneficiaryBankNameDvcqg : company.BeneficiaryBankNameDvcqg  || ""
-      });
+    isMounted.current = true;
+    if (isMounted.current) {
+      if (type === "edit") {
+        const company = getCompany;
+        setValue("company", {
+          Name: company.Name || "",
+          Idc: company.Idc || "",
+          Type: company.Type || "",
+          ParentDepartmentOid: company.ParentDepartmentOid || "",
+          DepartmentByParentGroupOid: company.DepartmentByParentGroupOid || "",
+          Ordinal: company.Ordinal || "",
+          BeneficiaryBankCodeDvcqg: company.BeneficiaryBankCodeDvcqg || "",
+          Address: company.Address || "",
+          PhoneNumber: company.PhoneNumber || "",
+          Email: company.Email || "",
+          Photo: company.Photo || "",
+          ReceivingLevel: company.ReceivingLevel || "",
+          StaffPhoneNumber: company.StaffPhoneNumber || "",
+          HeadPhoneNumber: company.HeadPhoneNumber || "",
+          StaffEmail: company.StaffEmail || "",
+          EmailOfTheHead: company.EmailOfTheHead || "",
+          EmailCchc1: company.EmailCchc1 || "",
+          EmailCchc2: company.EmailCchc2 || "",
+          AgencyNameSms: company.AgencyNameSms || "",
+          PostalCode: company.PostalCode || "",
+          IsNhanHslienThong: company.IsNhanHslienThong || "",
+          TaxCode: company.TaxCode || "",
+          CountryManagementCode: company.CountryManagementCode || "",
+          IsCheckInvoicePrinting: company.IsCheckInvoicePrinting || "",
+          InvoiceSymbolNumber: company.InvoiceSymbolNumber || "",
+          BeneficiaryAccountNumber: company.BeneficiaryAccountNumber || "",
+          BeneficiaryAccountName: company.BeneficiaryAccountName || "",
+          StateTreasuryAccountNumber: company.StateTreasuryAccountNumber || "",
+          StateTreasuryAccountCode: company.StateTreasuryAccountCode || "",
+          StateTreasuryAccountName: company.StateTreasuryAccountName || "",
+          IsConnectResidential: company.IsConnectResidential || "",
+          KeyConnectElectronicResidential:
+            company.KeyConnectElectronicResidential || "",
+          Hrmoid: company.Hrmoid || "",
+          HrmchaOid: company.HrmchaOid || "",
+          IsParent: company.IsParent || "",
+          JoinUnit: company.JoinUnit || "",
+          JoninUnitGroup: company.JoninUnitGroup || "",
+          Departments: company.Departments || "",
+          BeneficiaryBankNameDvcqg: company.BeneficiaryBankNameDvcqg || "",
+        });
+      }
     }
+    return () => {
+      isMounted.current = false;
+    };
   }, [Oid]);
-
- 
-
 
   return (
     <form className="form" onSubmit={handleSubmit(onSubmit)}>
@@ -304,23 +312,46 @@ const Form = () => {
           fullWidth
           type="email"
         />
-         <select
-          {...register("company.ParentDepartmentOid", { required: true })}
-          label="ParentDepartmentOid"
-          className={
-            !!errors?.company?.ParentDepartmentOid
-              ? "square border border-danger text-danger w-100 rounded-3"
-              : "square border text-muted w-100 rounded-3"
-          }
-        >
-          <option value="">ParentDepartmentOid</option>
-          <option
-            selected={watch(company.ParentDepartmentOid) === "donvi"}
-            value="a"
-          >
-            Nguyen van a
-          </option>
-        </select>
+      
+
+<Controller
+          {...register("company.ParentDepartmentOid",{required : true})}
+          control={control}
+          render={({ field: { onChange, onBlur, value, name, ref } }) => (
+            <FormControl fullWidth error={!!errors?.company?.ParentDepartmentOid}>
+              <InputLabel id="demo-simple-select-helper-label-ParentDepartmentOid ">ParentDepartmentOid</InputLabel>
+              <Select
+                fullWidth
+                labelId="demo-simple-select-helper-label-ParentDepartmentOid"
+                label="ParentDepartmentOid"
+                value={value}
+                onChange={onChange}
+                
+              >
+               <MenuItem value="">ParentDepartmentOid</MenuItem>
+                <MenuItem value="a">Nguyễn Thiên Nhật a</MenuItem>
+
+
+                {type === "edit" && (
+                  <MenuItem
+                    hidden={
+                      (type !== "edit") |
+                      (getCompany.ParentDepartmentOid === "a")
+                    }
+                    selected={
+                      type === "edit"
+                        ? getCompany.ParentDepartmentOid !== "a"
+                        : false
+                    }
+                    value={getCompany?.ParentDepartmentOid}
+                  >
+                    {getCompany?.ParentDepartmentOid}
+                  </MenuItem>
+                )}
+              </Select>
+            </FormControl>
+          )}
+          /> 
       </InputContainer>
 
       <InputContainer className="form-outline my-4">
@@ -431,13 +462,13 @@ const Form = () => {
         <Controller
           name="company.IsCheckInvoicePrinting"
           control={control}
-          render={({ field }) => (
+          render={({ field: { onChange, onBlur, value, name, ref } }) => (
             <FormControlLabel
-              {...field}
               control={
                 <Switch
-                  // checked={type === "edit" ? (company.IsNhanHslienThong ? true : false) : false}
+                  checked={value}
                   inputProps={{ "aria-label": "controlled" }}
+                  onChange={onChange}
                 />
               }
               label={"IsCheckInvoicePrinting"}
@@ -447,13 +478,13 @@ const Form = () => {
         <Controller
           name="company.IsParent"
           control={control}
-          render={({ field }) => (
+          render={({ field: { onChange, onBlur, value, name, ref } }) => (
             <FormControlLabel
-              {...field}
               control={
                 <Switch
-                  // checked={type === "edit" ? (company.IsNhanHslienThong ? true : false) : false}
+                  checked={value}
                   inputProps={{ "aria-label": "controlled" }}
+                  onChange={onChange}
                 />
               }
               label={"IsParent"}
@@ -463,13 +494,13 @@ const Form = () => {
         <Controller
           name="company.IsConnectResidential"
           control={control}
-          render={({ field }) => (
+          render={({ field: { onChange, onBlur, value, name, ref } }) => (
             <FormControlLabel
-              {...field}
               control={
                 <Switch
-                  // checked={type === "edit" ? (company.IsNhanHslienThong ? true : false) : false}
+                  checked={value}
                   inputProps={{ "aria-label": "controlled" }}
+                  onChange={onChange}
                 />
               }
               label={"IsConnectResidential"}
@@ -479,48 +510,47 @@ const Form = () => {
         <Controller
           name="company.IsNhanHslienThong"
           control={control}
-          render={({ field }) => (
+          render={({ field: { onChange, onBlur, value, name, ref } }) => (
             <FormControlLabel
-              {...field}
               control={
                 <Switch
-                  // checked={type === "edit" ? (company.IsNhanHslienThong ? true : false) : false}
+                  checked={value}
                   inputProps={{ "aria-label": "controlled" }}
+                  onChange={onChange}
                 />
               }
               label={"IsNhanHslienThong"}
             />
           )}
         ></Controller>
-        <select
-          className={
-            !!errors?.company?.Type
-              ? "square border border-danger p-3 text-danger rounded-3  w-100"
-              : "square border p-3 text-muted rounded-3  w-100"
-          }
-          {...register("company.Type", { required: true })}
-          label="Type"
-        >
-          <option value="">Type</option>
-          <option selected={watch(company.Type) === "donvi"} value="donvi">
-            Đơn vị
-          </option>
-          <option
-            selected={watch(company.Type) === "phongban"}
-            value="phongban"
-          >
-            Phòng ban
-          </option>
-          <option selected={watch(company.Type) === "nhom"} value="nhom">
-            Nhóm
-          </option>
-        </select>
+        <Controller
+          {...register("company.Type",{required : true})}
+          control={control}
+          render={({ field: { onChange, onBlur, value, name, ref } }) => (
+            <FormControl fullWidth error={!!errors?.company?.Type}>
+              <InputLabel id="demo-simple-select-helper-label ">Type</InputLabel>
+              <Select
+                fullWidth
+                labelId="demo-simple-select-helper-label"
+                label="Type"
+                value={value}
+                onChange={onChange}
+                
+              >
+                <MenuItem value="">Type</MenuItem>
+                <MenuItem value="donvi">Đơn vị </MenuItem>
+                <MenuItem value="phongban">Phòng ban </MenuItem>
+                <MenuItem value="nhom">Nhóm</MenuItem>
+              </Select>
+            </FormControl>
+          )}
+        />
       </InputContainer>
 
       <div className="form-outline my-5">
         <FormControlLabel
           control={
-            <Switch
+            <Checkbox
               checked={checkedAgree}
               onChange={handleChangAgree}
               inputProps={{ "aria-label": "controlled" }}
@@ -531,6 +561,7 @@ const Form = () => {
         />
         {agreeError && <span style={{ color: "red" }}>Ban chua dong y</span>}
       </div>
+
       <div className="d-flex justify-content-end">
         {type === "edit" ? (
           <Button

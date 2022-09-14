@@ -4,10 +4,20 @@ import { useDispatch } from "react-redux";
 import { getCompanys } from "./redux/companySlice";
 import { BrowserRouter, Routes } from "react-router-dom";
 import { SnackbarProvider } from "notistack";
+import { useRef } from "react";
+
 function App() {
+  let isMouted = useRef(false)
   const dispatch = useDispatch();
   useEffect(() => {
-      dispatch(getCompanys()); 
+    // isMouted.current = true;
+    // if(isMouted.current){
+      
+    // }
+    // return ()=>{
+    //   isMouted.current = false
+    // }
+    dispatch(getCompanys()); 
   }, []);
 
   return (

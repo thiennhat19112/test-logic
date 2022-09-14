@@ -11,7 +11,7 @@ import {
 import Dialog from "@mui/material/Dialog";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useRef, useState } from "react";
 import { deleteCompany, reloadCompany } from "../redux/companySlice";
 import moment from "moment";
 import Form from "./Form";
@@ -43,8 +43,8 @@ const Table = () => {
   const handleEdit = (company) => {
     console.log(company);
     dispatch(openDigLog());
-    setCompanyChecked(()=>{
-      return company
+    setCompanyChecked(() => {
+      return company;
     });
     const { Oid } = company[0];
     navigate(`/edit/${Oid}`, { state: { ...company[0] } });
@@ -107,14 +107,6 @@ const Table = () => {
     e.preventDefault();
   };
 
-  useEffect(() => {
-    isMounted.current = true;
-
-    return () => {
-      isMounted.current = false;
-    };
-  }, [isMounted]);
-
   const checkedCheckBoxAll = () => {
     if (isMounted.current) {
       if (companys.length === 0) return false;
@@ -157,32 +149,34 @@ const Table = () => {
         >
           Xóa
         </MDBBtn>
-        <MDBBtn onClick={handleReload} type="button" className="secondary">
-          Đồng bộ
+        <MDBBtn disabled={status === "loading"} onClick={handleReload} type="button" className="secondary">
+            Đồng bộ
         </MDBBtn>
       </div>
-      {status === "loading" && <CircularProgress className="position-absolute top-50 start-50 translate-middle"/>}
+      {status === "loading" && (
+        <CircularProgress className="position-absolute top-50 start-50 translate-middle" />
+      )}
       {status === "idle" && (
-      <MDBTable className="mb-0" bordered>
-        <MDBTableHead>
-          <tr>
-            <th scope="col">
-              <input
-                type="checkbox"
-                onChange={handleSelectAll}
-                name="flexCheck"
-                value="all"
-                checked={checkedCheckBoxAll()}
-                ref={checkAllElement}
-              />
-            </th>
-            <th scope="col">Name</th>
-            <th scope="col">Address</th>
-            <th scope="col">Type</th>
-            <th scope="col">Created</th>
-          </tr>
-        </MDBTableHead>
-        
+        <MDBTable className="mb-0" bordered>
+          <MDBTableHead>
+            <tr>
+              <th scope="col">
+                <input
+                  type="checkbox"
+                  onChange={handleSelectAll}
+                  name="flexCheck"
+                  value="all"
+                  checked={checkedCheckBoxAll()}
+                  ref={checkAllElement}
+                />
+              </th>
+              <th scope="col">Name</th>
+              <th scope="col">Address</th>
+              <th scope="col">Type</th>
+              <th scope="col">Created</th>
+            </tr>
+          </MDBTableHead>
+
           <MDBTableBody>
             {companys.length === 0 ? (
               <tr>"Không có dữ liệu!"</tr>
@@ -206,7 +200,7 @@ const Table = () => {
               ))
             )}
           </MDBTableBody>
-      </MDBTable>
+        </MDBTable>
       )}
       {/* modal */}
       <Dialog fullWidth maxWidth="lg" open={open} onClose={handleCloseDialog}>
