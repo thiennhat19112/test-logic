@@ -1,10 +1,11 @@
-import Table from "./components/Table";
+import Table from "./pages/Table";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { getCompanys } from "./redux/companySlice";
 import { BrowserRouter, Routes } from "react-router-dom";
 import { SnackbarProvider } from "notistack";
 import { useRef } from "react";
+import ViewByCat from "./pages/ViewByCat";
 
 function App() {
   let isMouted = useRef(false)
@@ -30,6 +31,7 @@ function App() {
           </Routes>
           <SnackbarProvider maxSnack={3}>
             <Table />
+            <ViewByCat/>
           </SnackbarProvider>
         </BrowserRouter>
       </div>

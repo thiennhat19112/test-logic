@@ -6,7 +6,6 @@ const companySlice = createSlice({
   initialState: { status: "loading", companys: [] },
   reducers: {
     addCompany: (state, action) => {
-      console.log(1);
       const id = Math.random().toString(16).substr(2, 8);
       const Created = new Date()
       const newCompany = {...action.payload, Oid : id,Created : Created}

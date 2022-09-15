@@ -13,7 +13,7 @@ import {
   Select,
 } from "@mui/material";
 import { useSnackbar } from "notistack";
-import { closeDigLog } from "../redux/dialogSlice";
+import { closeDiaLog } from "../redux/dialogSlice";
 import { styled } from "@mui/system";
 import { initCompanyValue } from "../innitValue";
 import { Controller, useForm } from "react-hook-form";
@@ -58,12 +58,12 @@ const Form = () => {
     if (type === "edit") {
       console.log(company);
       dispatch(editCompany({ ...company, Oid: Oid }));
-      dispatch(closeDigLog());
+      dispatch(closeDiaLog());
       navigative("/");
       enqueueSnackbar("Sửa thành công!", { variant });
     } else {
       dispatch(addCompany(company));
-      dispatch(closeDigLog());
+      dispatch(closeDiaLog());
       enqueueSnackbar("Thêm thành công!", { variant });
     }
   };

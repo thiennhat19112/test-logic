@@ -14,9 +14,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { memo, useRef, useState } from "react";
 import { deleteCompany, reloadCompany } from "../redux/companySlice";
 import moment from "moment";
-import Form from "./Form";
+import Form from "../components/Form";
 import { useSnackbar } from "notistack";
-import { closeDigLog, openDigLog } from "../redux/dialogSlice";
+import { closeDiaLog, openDiaLog } from "../redux/dialogSlice";
 import {
   CircularProgress,
   DialogActions,
@@ -25,6 +25,7 @@ import {
   IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { openDiaLogViewByCat } from "../redux/dialogSlice";
 
 const Table = () => {
   const { status, companys } = useSelector((state) => state.companys);
@@ -41,8 +42,7 @@ const Table = () => {
   const { enqueueSnackbar } = useSnackbar();
 
   const handleEdit = (company) => {
-    console.log(company);
-    dispatch(openDigLog());
+    dispatch(openDiaLog());
     setCompanyChecked(() => {
       return company;
     });
@@ -51,11 +51,11 @@ const Table = () => {
   };
 
   const handleClickOpenDialog = () => {
-    dispatch(openDigLog());
+    dispatch(openDiaLog());
   };
 
   const handleCloseDialog = () => {
-    dispatch(closeDigLog());
+    dispatch(closeDiaLog());
     navigate("/");
   };
 
@@ -108,10 +108,8 @@ const Table = () => {
   };
 
   const checkedCheckBoxAll = () => {
-    if (isMounted.current) {
-      if (companys.length === 0) return false;
-      if (companyChecked.length === companys.length) return true;
-    }
+    if (companys.length === 0) return false;
+    if (companyChecked.length === companys.length) return true;
     return false;
   };
 
@@ -121,6 +119,10 @@ const Table = () => {
       return OidsChecked.push(item.Oid);
     });
     return OidsChecked.includes(Oid);
+  };
+
+  const handleViewByCat = () => {
+    dispatch(openDiaLogViewByCat());
   };
 
   return (
@@ -149,8 +151,20 @@ const Table = () => {
         >
           Xóa
         </MDBBtn>
-        <MDBBtn disabled={status === "loading"} onClick={handleReload} type="button" className="secondary">
-            Đồng bộ
+        <MDBBtn
+          disabled={status === "loading"}
+          onClick={handleReload}
+          type="button"
+          className="secondary mx-2"
+        >
+          Đồng bộ
+        </MDBBtn>
+        <MDBBtn
+          type="button"
+          onClick={handleViewByCat}
+          className="secondary mx-2"
+        >
+          Xem theo loai
         </MDBBtn>
       </div>
       {status === "loading" && (
