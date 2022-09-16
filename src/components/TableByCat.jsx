@@ -1,20 +1,39 @@
-import { MDBTable, MDBTableHead } from 'mdb-react-ui-kit'
-import React from 'react'
+import { MDBTable, MDBTableBody, MDBTableHead } from "mdb-react-ui-kit";
+import React from "react";
+import { useSelector } from "react-redux";
 
-const TableByCat = () => {
-
+const TableByCat = ({ Types }) => {
+  const { companys } = useSelector((state) => state.companys);
+  console.log(Types);
+  const fieldCompanys = companys.filter((company) =>
+    Types.includes(company.Type)
+  );
   return (
-    <MDBTable className="mb-0" bordered>
+    <MDBTable className="mb-0" responsive bordered>
       <MDBTableHead>
         <tr>
-          <th>Name</th>
-          <th>Adress</th>
-          <th>Type</th>
-          <th>Created</th>
+          <th scope="col">Name</th>
+          <th scope="col">Adress</th>
+          <th scope="col">Type</th>
+          <th scope="col">Created</th>
         </tr>
       </MDBTableHead>
+      <MDBTableBody>
+        {fieldCompanys.length === 0 ? (
+          <tr>Không có dữ liệu</tr>
+        ) : (
+          fieldCompanys.map((company) => (
+            <tr>
+              <td>{company.Name}</td>
+              <td>{company.Address}</td>
+              <td>{company.Type}</td>
+              <td>{company.Create}</td>
+            </tr>
+          ))
+        )}
+      </MDBTableBody>
     </MDBTable>
-  )
-}
+  );
+};
 
-export default TableByCat
+export default TableByCat;

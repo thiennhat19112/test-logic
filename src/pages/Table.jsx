@@ -16,7 +16,7 @@ import { deleteCompany, reloadCompany } from "../redux/companySlice";
 import moment from "moment";
 import Form from "../components/Form";
 import { useSnackbar } from "notistack";
-import { closeDiaLog, openDiaLog } from "../redux/dialogSlice";
+import { closeDiaLog, openDiaLog, openDiaLogTreeView } from "../redux/dialogSlice";
 import {
   CircularProgress,
   DialogActions,
@@ -125,6 +125,10 @@ const Table = () => {
     dispatch(openDiaLogViewByCat());
   };
 
+  const handleTreeView = ()=>{
+    dispatch(openDiaLogTreeView())
+  }
+
   return (
     <div className="p-4">
       <div className="float-end my-2">
@@ -165,6 +169,13 @@ const Table = () => {
           className="secondary mx-2"
         >
           Xem theo loai
+        </MDBBtn>
+        <MDBBtn
+          type="button"
+          onClick={handleTreeView}
+          className="secondary mx-2"
+        >
+          Tree view
         </MDBBtn>
       </div>
       {status === "loading" && (

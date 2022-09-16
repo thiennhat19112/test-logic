@@ -4,7 +4,8 @@ import { createSlice } from "@reduxjs/toolkit";
     name : "digLog",
     initialState : {
         open : false,
-        viewByCat : false
+        viewByCat : false, 
+        treeView : false, 
     },
     reducers : {
         openDiaLog : (state)=>{
@@ -19,9 +20,15 @@ import { createSlice } from "@reduxjs/toolkit";
         closeDiaLogViewByCat : (state)=>{
             state.viewByCat = false
         },
+        openDiaLogTreeView : (state)=>{
+            state.treeView = true
+        },
+        closeDiaLogTreeView : (state)=>{
+            state.treeView = false
+        },
     }
 })
 
-export const {openDiaLog,closeDiaLog,openDiaLogViewByCat,closeDiaLogViewByCat} = digLogSlice.actions
+export const {openDiaLog,closeDiaLog,openDiaLogViewByCat,closeDiaLogViewByCat,openDiaLogTreeView,closeDiaLogTreeView} = digLogSlice.actions
 export const digLogReducer = digLogSlice.reducer
 export default digLogSlice;

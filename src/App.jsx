@@ -6,6 +6,7 @@ import { BrowserRouter, Routes } from "react-router-dom";
 import { SnackbarProvider } from "notistack";
 import { useRef } from "react";
 import ViewByCat from "./pages/ViewByCat";
+import TreeView from "./pages/TreeView";
 
 function App() {
   let isMouted = useRef(false)
@@ -32,6 +33,7 @@ function App() {
           <SnackbarProvider maxSnack={3}>
             <Table />
             <ViewByCat/>
+            <TreeView />
           </SnackbarProvider>
         </BrowserRouter>
       </div>
