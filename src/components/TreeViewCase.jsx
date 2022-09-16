@@ -7,73 +7,70 @@ import { useCallback } from "react";
 
 const TreeViewCase = () => {
   const { companys } = useSelector((state) => state.companys);
- const data = ()=>{
-    let tree = []
-    tree = companys.filter((c)=> c.Type === "donvi");
-    const donvi = companys.filter((c)=> c.Type === "donvi");
-    const phongBan = companys.filter((c)=> c.Type === "phongban");
-    const nhom = companys.filter((c)=> c.Type === "nhom");
+  const data = () => {
+    let tree = [];
+    const donvi = companys.filter((c) => c.Type === "donvi");
+    const phongban = companys.filter((c) => c.Type === "phongban");
+    tree = donvi.map((d) => {
+      return {
+        ...d,
+        Departments: phongban.filter(
+          ({ ParentDepartmentOid }) =>
+            d.ParentDepartmentOid === ParentDepartmentOid
+        ),
+      };
+    });
+    console.log(tree);
+    return tree;
+  };
 
+  //   const tree = [
+  //     {
+  //       id: "1",
+  //       name: "Đơn vị",
+  //       Type: "donvi",
+  //       children: [],
+  //     },
+  //     {
+  //       id: "2",
+  //       name: "Phòng ban",
+  //       Type: "phongban",
+  //       children: [],
+  //     },
+  //     {
+  //       id: "3",
+  //       name: "Nhóm",
+  //       Type: "nhom",
+  //       children: [],
+  //     },
+  //   ];
 
-    tree.forEach((t,i,arr)=>{
-        phongBan.forEach(p=>{
-            if(t.ParentDepartmentOid === p.ParentDepartmentOid){
-               console.log(`${arr[i].ParentDepartmentOid}`,arr[i].Departments , p.ParentDepartmentOid);
-            //    arr[i].Departments.push(p)
-            }
-        })
-    })
-    
-    return tree
- }
+  //   const data = () => {
+  //     const groupCompanysByType = companys.reduce((r, c) => {
+  //       const { Type, ...other } = c;
+  //       r[Type] = [
+  //         ...(r[Type] || []),
+  //         {
+  //           Type,
+  //           ...other,
+  //         },
+  //       ];
+  //       return r;
+  //     }, {});
 
-//   const tree = [
-//     {
-//       id: "1",
-//       name: "Đơn vị",
-//       Type: "donvi",
-//       children: [],
-//     },
-//     {
-//       id: "2",
-//       name: "Phòng ban",
-//       Type: "phongban",
-//       children: [],
-//     },
-//     {
-//       id: "3",
-//       name: "Nhóm",
-//       Type: "nhom",
-//       children: [],
-//     },
-//   ];
+  //     tree.forEach((v, i, arr) => {
+  //       if (Object.keys(groupCompanysByType).includes(v.Type)) {
+  //         v.children = groupCompanysByType[v.Type];
+  //       }
+  //     });
 
-//   const data = () => {
-//     const groupCompanysByType = companys.reduce((r, c) => {
-//       const { Type, ...other } = c;
-//       r[Type] = [
-//         ...(r[Type] || []),
-//         {
-//           Type,
-//           ...other,
-//         },
-//       ];
-//       return r;
-//     }, {});
-
-//     tree.forEach((v, i, arr) => {
-//       if (Object.keys(groupCompanysByType).includes(v.Type)) {
-//         v.children = groupCompanysByType[v.Type];
-//       }
-//     });
-
-//     return tree;
-//   };
+  //     return tree;
+  //   };
 
   const renderTree = (nodes) =>
     nodes.map((item) => (
       <TreeItem nodeId={item.Oid} label={item.Name} key={item.Oid}>
-        {item.Departments.length !== 0 ? renderTree(nodes) : null}
+        {item.Departments.length !== 0 ? renderTree(item.Departments) : null}
       </TreeItem>
     ));
 
