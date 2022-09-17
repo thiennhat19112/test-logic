@@ -18,8 +18,7 @@ const TreeViewCase = () => {
     tree.forEach((t,i,arr)=>{
         phongBan.forEach(p=>{
             if(t.ParentDepartmentOid === p.ParentDepartmentOid){
-               console.log(`${arr[i].ParentDepartmentOid}`,arr[i].Departments , p.ParentDepartmentOid);
-            //    arr[i].Departments.push(p)
+               console.log(`${arr[i].ParentDepartmentOid}`,arr[i].Departments , p);
             }
         })
     })
