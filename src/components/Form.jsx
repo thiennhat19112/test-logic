@@ -37,7 +37,7 @@ const Form = () => {
   const getCompany = companys.find((item) => item?.Oid === Oid);
   const { enqueueSnackbar } = useSnackbar();
   let isMounted = useRef(false);
-  
+
   const {
     register,
     handleSubmit,
@@ -313,25 +313,28 @@ const Form = () => {
           fullWidth
           type="email"
         />
-      
 
-<Controller
-          {...register("company.ParentDepartmentOid",{required : true})}
+        <Controller
+          {...register("company.ParentDepartmentOid", { required: true })}
           control={control}
           render={({ field: { onChange, onBlur, value, name, ref } }) => (
-            <FormControl fullWidth error={!!errors?.company?.ParentDepartmentOid}>
-              <InputLabel id="demo-simple-select-helper-label-ParentDepartmentOid ">ParentDepartmentOid</InputLabel>
+            <FormControl
+              fullWidth
+              error={!!errors?.company?.ParentDepartmentOid}
+            >
+              <InputLabel id="demo-simple-select-helper-label-ParentDepartmentOid ">
+                ParentDepartmentOid
+              </InputLabel>
               <Select
                 fullWidth
                 labelId="demo-simple-select-helper-label-ParentDepartmentOid"
                 label="ParentDepartmentOid"
                 value={value}
                 onChange={onChange}
-                
               >
-               <MenuItem value="">ParentDepartmentOid</MenuItem>
+                <MenuItem value="">ParentDepartmentOid</MenuItem>
                 <MenuItem value="a">Nguyễn Thiên Nhật a</MenuItem>
-
+                <MenuItem value="a86b960d-3ea8-409b-a398-60b5c72341fe">testthemphongban</MenuItem>
 
                 {type === "edit" && (
                   <MenuItem
@@ -352,7 +355,7 @@ const Form = () => {
               </Select>
             </FormControl>
           )}
-          /> 
+        />
       </InputContainer>
 
       <InputContainer className="form-outline my-4">
@@ -525,18 +528,19 @@ const Form = () => {
           )}
         ></Controller>
         <Controller
-          {...register("company.Type",{required : true})}
+          {...register("company.Type", { required: true })}
           control={control}
           render={({ field: { onChange, onBlur, value, name, ref } }) => (
             <FormControl fullWidth error={!!errors?.company?.Type}>
-              <InputLabel id="demo-simple-select-helper-label ">Type</InputLabel>
+              <InputLabel id="demo-simple-select-helper-label ">
+                Type
+              </InputLabel>
               <Select
                 fullWidth
                 labelId="demo-simple-select-helper-label"
                 label="Type"
                 value={value}
                 onChange={onChange}
-                
               >
                 <MenuItem value="">Type</MenuItem>
                 <MenuItem value="donvi">Đơn vị </MenuItem>

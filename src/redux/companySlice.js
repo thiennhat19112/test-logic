@@ -7,8 +7,8 @@ const companySlice = createSlice({
   reducers: {
     addCompany: (state, action) => {
       const id = Math.random().toString(16).substr(2, 8);
-      const Created = new Date()
-      const newCompany = {...action.payload, Oid : id,Created : Created}
+      const Created = new Date();
+      const newCompany = { ...action.payload, Oid: id, Created: Created };
       state.companys.unshift(newCompany);
     },
 
@@ -22,12 +22,10 @@ const companySlice = createSlice({
 
     deleteCompany: (state, action) => {
       const Oids = [];
-      action.payload.map(element =>{
-        return Oids.push(element.Oid)
-      })
-      state.companys = state.companys.filter(
-        (c) => !Oids.includes(c.Oid)
-      );
+      action.payload.map((element) => {
+        return Oids.push(element.Oid);
+      });
+      state.companys = state.companys.filter((c) => !Oids.includes(c.Oid));
     },
   },
   extraReducers: (builder) => {
@@ -96,7 +94,9 @@ export const reloadCompany = createAsyncThunk(
       }
       return false;
     });
-    return result.sort((prev,current) =>{ return current.Created > prev.Created ? 1 : -1 });
+    return result.sort((prev, current) => {
+      return current.Created > prev.Created ? 1 : -1;
+    });
   }
 );
 

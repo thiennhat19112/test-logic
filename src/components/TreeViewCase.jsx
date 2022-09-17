@@ -3,76 +3,109 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import TreeItem from "@mui/lab/TreeItem";
 import { useSelector } from "react-redux";
-import { useCallback } from "react";
 
 const TreeViewCase = () => {
   const { companys } = useSelector((state) => state.companys);
- const data = ()=>{
-    let tree = []
-    tree = companys.filter((c)=> c.Type === "donvi");
-    const donvi = companys.filter((c)=> c.Type === "donvi");
-    const phongBan = companys.filter((c)=> c.Type === "phongban");
-    const nhom = companys.filter((c)=> c.Type === "nhom");
-
-
-    tree.forEach((t,i,arr)=>{
-        phongBan.forEach(p=>{
-            if(t.ParentDepartmentOid === p.ParentDepartmentOid){
-               console.log(`${arr[i].ParentDepartmentOid}`,arr[i].Departments , p);
-            }
-        })
-    })
+  const data = () => {
+    let tree = [];
+    let temp = [];
+    let donvi = companys.filter((c) => c.ParentDepartmentOid === null);
     
-    return tree
- }
+    tree = donvi.map(d => {
+        return {
+            ...d,
+            Departments : companys.filter( c => c.ParentDepartmentOid === d.Oid)
+        }
+    })
 
-//   const tree = [
-//     {
-//       id: "1",
-//       name: "Đơn vị",
-//       Type: "donvi",
-//       children: [],
-//     },
-//     {
-//       id: "2",
-//       name: "Phòng ban",
-//       Type: "phongban",
-//       children: [],
-//     },
-//     {
-//       id: "3",
-//       name: "Nhóm",
-//       Type: "nhom",
-//       children: [],
-//     },
-//   ];
+    // const phongban = companys.filter((c) => c.Type === "phongban");
+    // const nhom = companys.filter((c) => c.Type === "nhom");
 
-//   const data = () => {
-//     const groupCompanysByType = companys.reduce((r, c) => {
-//       const { Type, ...other } = c;
-//       r[Type] = [
-//         ...(r[Type] || []),
-//         {
-//           Type,
-//           ...other,
-//         },
-//       ];
-//       return r;
-//     }, {});
+    // temp = phongban.map((p) => {
+    //   return {
+    //     ...p,
+    //     Departments: nhom.filter(
+    //       ({ ParentDepartmentOid }) =>
+    //         p.ParentDepartmentOid === ParentDepartmentOid
+    //     ),
+    //   };
+    // });
 
-//     tree.forEach((v, i, arr) => {
-//       if (Object.keys(groupCompanysByType).includes(v.Type)) {
-//         v.children = groupCompanysByType[v.Type];
-//       }
-//     });
+    // console.log(temp);
 
-//     return tree;
-//   };
+    // tree = donvi.map((d) => {
+    //   return {
+    //     ...d,
+    //     Departments: temp.filter(
+    //       ({ ParentDepartmentOid }) =>
+    //         d.ParentDepartmentOid === ParentDepartmentOid
+    //     ),
+    //   };
+    // });
+
+    // const gruopData = tree.reduce((t,{Departments}) =>{
+    //    const x = Departments.map(d =>{
+    //     return {
+    //         ...d,
+    //         Departments : nhom.filter(({ParentDepartmentOid}) => d.ParentDepartmentOid === ParentDepartmentOid)
+    //     }
+    //    })
+
+    //    t = [...t,x]
+    //    return x;
+    // })
+
+    // console.log(tree);
+    return tree;
+  };
+
+  //   const tree = [
+  //     {
+  //       id: "1",
+  //       name: "Đơn vị",
+  //       Type: "donvi",
+  //       children: [],
+  //     },
+  //     {
+  //       id: "2",
+  //       name: "Phòng ban",
+  //       Type: "phongban",
+  //       children: [],
+  //     },
+  //     {
+  //       id: "3",
+  //       name: "Nhóm",
+  //       Type: "nhom",
+  //       children: [],
+  //     },
+  //   ];
+
+  //   const data = () => {
+  //     const groupCompanysByType = companys.reduce((r, c) => {
+  //       const { Type, ...other } = c;
+  //       r[Type] = [
+  //         ...(r[Type] || []),
+  //         {
+  //           Type,
+  //           ...other,
+  //         },
+  //       ];
+  //       return r;
+  //     }, {});
+
+  //     tree.forEach((v, i, arr) => {
+  //       if (Object.keys(groupCompanysByType).includes(v.Type)) {
+  //         v.children = groupCompanysByType[v.Type];
+  //       }
+  //     });
+
+  //     return tree;
+  //   };
 
   const renderTree = (nodes) =>
     nodes.map((item) => (
       <TreeItem nodeId={item.Oid} label={item.Name} key={item.Oid}>
-        {item.Departments.length !== 0 ? renderTree(nodes) : null}
+        {item.Departments.length !== 0 ? renderTree(item.Departments) : null}
       </TreeItem>
     ));
 
