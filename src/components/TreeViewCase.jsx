@@ -9,14 +9,25 @@ const TreeViewCase = () => {
   const data = () => {
     let tree = [];
     let temp = [];
-    let donvi = companys.filter((c) => c.ParentDepartmentOid === null);
-    
-    tree = donvi.map(d => {
-        return {
-            ...d,
-            Departments : companys.filter( c => c.ParentDepartmentOid === d.Oid)
-        }
+    const donvi = companys.filter((c) => c.ParentDepartmentOid === null);
+    const phongBan = companys.filter(({ ParentDepartmentOid }) => (donvi.some((d) => d.Oid === ParentDepartmentOid)));
+    const nhom = companys.filter(({ParentDepartmentOid}) => phongBan.some(p => p.Oid === ParentDepartmentOid));
+
+    temp = phongBan.map(p => {
+      return {
+        ...p,
+        Departments : nhom.filter(n => n.ParentDepartmentOid === p.Oid)
+      }
     })
+
+    tree = donvi.map((d) => {
+      return {
+        ...d,
+        Departments: temp.filter((e) => e.ParentDepartmentOid === d.Oid),
+      };
+    });
+
+    
 
     // const phongban = companys.filter((c) => c.Type === "phongban");
     // const nhom = companys.filter((c) => c.Type === "nhom");
