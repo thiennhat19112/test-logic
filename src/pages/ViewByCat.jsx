@@ -30,8 +30,8 @@ const ViewByCat = () => {
           <CloseIcon />
         </IconButton>
       </DialogTitle>
-      <DialogContent className="overflow-hidden vh-100">
-        <FeatureViewByCat className="h-100" />
+      <DialogContent>
+        <FeatureViewByCat  />
       </DialogContent>
       <DialogActions></DialogActions>
     </Dialog>
