@@ -1,10 +1,8 @@
 import {
-  Autocomplete,
   Dialog,
   DialogContent,
   DialogTitle,
   IconButton,
-  TextField,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,7 +19,7 @@ const TreeView = () => {
     <Dialog fullWidth maxWidth="xl" open={treeView}>
       <DialogTitle >
         Case
-      <IconButton
+        <IconButton
           edge="start"
           color="inherit"
           onClick={handleClose}
