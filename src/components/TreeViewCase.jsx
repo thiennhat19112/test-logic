@@ -24,7 +24,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useForm } from "react-hook-form";
 import { useRef } from "react";
 import { initCompanyValue } from "../innitValue";
-import { addCompany, deleteOneComapany } from "../redux/companySlice";
+import {
+  addCompany,
+  deleteOneComapany,
+  editCompany,
+} from "../redux/companySlice";
 
 const TreeViewCase = () => {
   const { companys } = useSelector((state) => state.companys);
@@ -32,12 +36,20 @@ const TreeViewCase = () => {
   const [expanded, setExpanded] = useState([]);
   const [selected, setSelected] = useState([]);
   const [openForm, setOpenForm] = useState(false);
-  
+  let action = useRef("");
+  let _oldCompany = useRef({});
+  let OidsSelect = useRef([]);
+
   let _Oid = useRef("");
 
   const dispatch = useDispatch();
 
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit, reset, setValue } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      company: { Name: "" },
+    },
+  });
 
   const donvi = companys.filter((c) => c.ParentDepartmentOid === null);
 
@@ -87,9 +99,14 @@ const TreeViewCase = () => {
             >
               {item.Name}
             </Typography>
-            <Stack className="btn-container" direction="row" spacing={2}>
+            <Stack
+              id={item.Oid}
+              className="btn-container"
+              direction="row"
+              spacing={2}
+            >
               <DriveFileRenameOutlineRounded
-                onClick={(e) => handleEditTreeItem(e)}
+                onClick={(e) => handleEditTreeItem(e, item)}
               />
               <AddBox onClick={(e) => handleAddTreeItem(e, item.Oid)} />
               <IndeterminateCheckBoxRoundedIcon
@@ -105,12 +122,19 @@ const TreeViewCase = () => {
     ));
 
   const handleAddTreeItem = (e, Oid) => {
+    action.current = "add";
     setOpenForm(true);
     _Oid.current = Oid;
     e.stopPropagation();
   };
 
-  const handleEditTreeItem = (e) => {
+  const handleEditTreeItem = (e, data) => {
+    action.current = "edit";
+    _oldCompany.current = data;
+    setValue("company", {
+      Name: _oldCompany.current.Name,
+    });
+    setOpenForm(true);
     e.stopPropagation();
   };
 
@@ -120,9 +144,14 @@ const TreeViewCase = () => {
     e.stopPropagation();
   };
 
-  const handleChangeSelect = (e, newValue) => {
-    setValueSelect(newValue);
+  // const filter =  (Oids) => {
+  //   let OidsSetlect = [];
+  //   const x = companys.filter(c => Oids.includes(c.Oid));
+  //   OidsSetlect = x.map(item => item.Oid);
+  // }
 
+   const handleChangeSelect = (e, newValue) => {
+    setValueSelect(newValue);
     const Oids = newValue.map((value) => {
       return value.Oid;
     });
@@ -149,7 +178,6 @@ const TreeViewCase = () => {
     }
 
     if (isPhongBan) {
-      console.log(Oids);
       const getPhongBan = phongBan.filter((p) => Oids.includes(p.Oid));
       if (getPhongBan.length === 1) {
         setExpanded([getPhongBan[0].ParentDepartmentOid, getPhongBan[0].Oid]);
@@ -177,13 +205,25 @@ const TreeViewCase = () => {
     setSelected(nodeIds);
   };
 
-  const onSubmitAddTree = (data) => {
+  const onSubmit = (data) => {
+    if (action.current === "edit") {
+      const changeCompany = {
+        ..._oldCompany.current,
+        Name: data.company.Name,
+        Departments: [],
+      };
+      dispatch(editCompany(changeCompany));
+      reset();
+      setOpenForm(false);
+      return;
+    }
+
     const newCompany = {
       ...initCompanyValue,
-      Name: data.Name,
+      Name: data.company.Name,
       ParentDepartmentOid: _Oid.current,
     };
-    console.log(newCompany);
+
     dispatch(addCompany(newCompany));
     reset();
     setOpenForm(false);
@@ -191,6 +231,8 @@ const TreeViewCase = () => {
       return [...prev, _Oid.current];
     });
   };
+
+  console.log(dataTree(companys));
 
   return (
     <Stack sx={{ height: "700px", margin: "10px" }} direction="row" spacing={2}>
@@ -217,8 +259,9 @@ const TreeViewCase = () => {
           )}
         />
       </FormControl>
+
       <TreeView
-        aria-label="file system navigator"
+        aria-label=""
         defaultCollapseIcon={<ExpandMoreIcon />}
         defaultExpandIcon={<ChevronRightIcon />}
         sx={{ flex: 1 }}
@@ -229,9 +272,10 @@ const TreeViewCase = () => {
       >
         {renderTree(dataTree(companys))}
       </TreeView>
+
       <Dialog fullWidth maxWidth="xs" open={openForm}>
         <DialogTitle>
-          Add tree
+          {action.current === "edit" ? "Edit" : "Add"}
           <IconButton
             edge="start"
             color="inherit"
@@ -243,23 +287,33 @@ const TreeViewCase = () => {
           </IconButton>
         </DialogTitle>
         <DialogContent>
-          <form onSubmit={handleSubmit(onSubmitAddTree)}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <TextField
-              {...register("Name")}
+              {...register("company.Name")}
               autoFocus
               margin="dense"
-              label="Add tree"
+              label={action.current === "edit" ? "Edit tree" : "Add tree"}
               type="text"
               fullWidth
               variant="standard"
             />
-            <Button
-              className="mt-5 float-end"
-              type="submit"
-              variant="contained"
-            >
-              Add
-            </Button>
+            {action.current === "edit" ? (
+              <Button
+                className="mt-5 float-end"
+                type="submit"
+                variant="contained"
+              >
+                Edit
+              </Button>
+            ) : (
+              <Button
+                className="mt-5 float-end"
+                type="submit"
+                variant="contained"
+              >
+                Add
+              </Button>
+            )}
           </form>
         </DialogContent>
       </Dialog>

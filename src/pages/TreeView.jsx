@@ -16,7 +16,7 @@ const TreeView = () => {
     dispatch(closeDiaLogTreeView());
   };
   return (
-    <Dialog fullWidth maxWidth="xl" open={treeView}>
+    <Dialog fullWidth maxWidth="lg" open={treeView}>
       <DialogTitle >
         Case
         <IconButton

@@ -13,7 +13,6 @@ const companySlice = createSlice({
     },
 
     editCompany: (state, action) => {
-      console.log(action.payload);
       const index = state.companys.findIndex(
         (item) => item.Oid === action.payload.Oid
       );

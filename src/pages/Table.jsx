@@ -33,7 +33,6 @@ const Table = () => {
   const [companyChecked, setCompanyChecked] = useState([]);
   const [confirmModal, setConFirmModal] = useState(false);
   const checkAllElement = useRef(false);
-  const isMounted = useRef(false);
   const [checkedAll, setCheckAll] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
