@@ -25,61 +25,28 @@ import { useForm } from "react-hook-form";
 import { useRef } from "react";
 import { initCompanyValue } from "../innitValue";
 import {
-  addCompany,
   deleteOneComapany,
-  editCompany,
 } from "../redux/companySlice";
+import {
+  MDBBtn,
+  MDBModal,
+  MDBModalBody,
+  MDBModalContent,
+  MDBModalDialog,
+} from "mdb-react-ui-kit";
+import { openDiaLog } from "../redux/dialogSlice";
+import { useNavigate } from "react-router-dom";
 
 const TreeViewCase = () => {
   const { companys } = useSelector((state) => state.companys);
   const [valueSelect, setValueSelect] = useState([]);
   const [expanded, setExpanded] = useState([]);
   const [selected, setSelected] = useState([]);
-  const [openForm, setOpenForm] = useState(false);
-  let action = useRef("");
-  let _oldCompany = useRef({});
-  let OidsSelect = useRef([]);
-
-  let _Oid = useRef("");
-
+  const [confirmModal, setConFirmModal] = useState(false);
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const { register, handleSubmit, reset, setValue } = useForm({
-    mode: "onChange",
-    defaultValues: {
-      company: { Name: "" },
-    },
-  });
-
-  const donvi = companys.filter((c) => c.ParentDepartmentOid === null);
-
-  const phongBan = companys.filter(({ ParentDepartmentOid }) =>
-    donvi.some((d) => d.Oid === ParentDepartmentOid)
-  );
-
-  const nhom = companys.filter(({ ParentDepartmentOid }) =>
-    phongBan.some((p) => p.Oid === ParentDepartmentOid)
-  );
-
-  // const data = () => {
-  //   let tree = [];
-  //   let temp = [];
-
-  //   temp = phongBan.map((p) => {
-  //     return {
-  //       ...p,
-  //       Departments: nhom.filter((n) => n.ParentDepartmentOid === p.Oid),
-  //     };
-  //   });
-
-  //   tree = donvi.map((d) => {
-  //     return {
-  //       ...d,
-  //       Departments: temp.filter((e) => e.ParentDepartmentOid === d.Oid),
-  //     };
-  //   });
-  //   return tree;
-  // };
+  let _oldCompany = useRef({});
+  let _Oid = useRef("");
 
   const dataTree = (companys, Oid = null, link = "ParentDepartmentOid") => {
     return companys
@@ -87,32 +54,52 @@ const TreeViewCase = () => {
       .map((item) => ({ ...item, Departments: dataTree(companys, item.Oid) }));
   };
 
-  const renderTree = (nodes) =>
-    nodes.map((item) => (
+  const filter = (ParentDepartmentOid, Oids, arr, OidsSelect = []) => {
+    OidsSelect.push([ParentDepartmentOid, Oids].flat());
+    if (Array.isArray(ParentDepartmentOid)) {
+      arr
+        .filter((e) => ParentDepartmentOid.includes(e.Oid))
+        .map((i) => filter([i.ParentDepartmentOid], [i.Oid], arr, OidsSelect));
+    }
+    return OidsSelect;
+  };
+
+  const renderTree = (nodes) => {
+    return nodes.map((item) => (
       <TreeItem
         nodeId={item.Oid}
         label={
-          <Box sx={{ display: "flex", alignItems: "center", p: 0.5, pr: 0 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              p: 0.5,
+              pr: 0,
+              height: "50px",
+            }}
+          >
             <Typography
               variant="body2"
               sx={{ fontWeight: "inherit", flexGrow: 1 }}
             >
-              {item.Name}
+              {item.Name} {item.Departments.length > 0 && `(${item.Departments.length})`}
             </Typography>
-            <Stack
-              id={item.Oid}
-              className="btn-container"
-              direction="row"
-              spacing={2}
-            >
-              <DriveFileRenameOutlineRounded
-                onClick={(e) => handleEditTreeItem(e, item)}
-              />
-              <AddBox onClick={(e) => handleAddTreeItem(e, item.Oid)} />
-              <IndeterminateCheckBoxRoundedIcon
-                onClick={(e) => handleDeleteTreeItem(e, item.Oid)}
-              />
-            </Stack>
+
+            {selected.includes(item.Oid) && (
+              <Stack className="btn-container" direction="row" spacing={2}>
+                <IconButton onClick={(e) => handleEditTreeItem(e, item)}>
+                  <DriveFileRenameOutlineRounded sx={{ color: "#616161" }} />
+                </IconButton>
+
+                <IconButton onClick={(e) => handleAddTreeItem(e, item.Oid)}>
+                  <AddBox sx={{ color: "#616161" }} />
+                </IconButton>
+
+                <IconButton onClick={(e) => handleModalConfirm(e, item)}>
+                  <IndeterminateCheckBoxRoundedIcon sx={{ color: "#616161" }} />
+                </IconButton>
+              </Stack>
+            )}
           </Box>
         }
         key={item.Oid}
@@ -120,81 +107,48 @@ const TreeViewCase = () => {
         {item?.Departments ? renderTree(item.Departments) : null}
       </TreeItem>
     ));
+  };
 
   const handleAddTreeItem = (e, Oid) => {
-    action.current = "add";
-    setOpenForm(true);
+    dispatch(openDiaLog())
     _Oid.current = Oid;
     e.stopPropagation();
   };
 
   const handleEditTreeItem = (e, data) => {
-    action.current = "edit";
+    dispatch(openDiaLog());
+    const {Oid} = data;
+    navigate(`/edit/${Oid}`, { state: data });
+    e.stopPropagation();
+  };
+
+  const handleModalConfirm = (e, data) => {
     _oldCompany.current = data;
-    setValue("company", {
-      Name: _oldCompany.current.Name,
-    });
-    setOpenForm(true);
+    setConFirmModal(true);
     e.stopPropagation();
   };
 
-  const handleDeleteTreeItem = (e, Oid) => {
-    dispatch(deleteOneComapany(Oid));
-    setSelected([]);
-    e.stopPropagation();
+  const handleDeleteTreeItem = () => {
+    dispatch(deleteOneComapany(_oldCompany.current.Oid));
+    setConFirmModal(false);
   };
 
-  // const filter =  (Oids) => {
-  //   let OidsSetlect = [];
-  //   const x = companys.filter(c => Oids.includes(c.Oid));
-  //   OidsSetlect = x.map(item => item.Oid);
-  // }
-
-   const handleChangeSelect = (e, newValue) => {
+  const handleChangeSelect = (e, newValue) => {
     setValueSelect(newValue);
-    const Oids = newValue.map((value) => {
-      return value.Oid;
-    });
-
-    setSelected(Oids);
-
     const ParentDepartmentOid = newValue.map((value) => {
       return value.ParentDepartmentOid;
     });
+    const Oids = newValue.map((value) => {
+      return value.Oid;
+    });
+    // set Selected
+    setSelected(Oids);
 
-    const isPhongBan = phongBan.some((p) => Oids.includes(p.Oid));
-    const isNhom = nhom.some((n) => Oids.includes(n.Oid));
-
-    if (newValue.length === 0) {
-      return setExpanded([]);
-    }
-
-    if (!isPhongBan & !isNhom) {
-      const getDonVi = donvi.filter((d) => Oids.includes(d.Oid));
-      const OidsDonvi = getDonVi.map((value) => {
-        return value.Oid;
-      });
-      return setExpanded(OidsDonvi);
-    }
-
-    if (isPhongBan) {
-      const getPhongBan = phongBan.filter((p) => Oids.includes(p.Oid));
-      if (getPhongBan.length === 1) {
-        setExpanded([getPhongBan[0].ParentDepartmentOid, getPhongBan[0].Oid]);
-      } else {
-        const OidsPhongBan = getPhongBan.map((value) => {
-          return [value.Oid.toString(), value.ParentDepartmentOid.toString()];
-        });
-        setExpanded(OidsPhongBan.flat());
-      }
-    }
-
-    if (isNhom) {
-      const getPhongban = phongBan.find((p) =>
-        ParentDepartmentOid.includes(p.Oid)
-      );
-      setExpanded([getPhongban.Oid, getPhongban.ParentDepartmentOid]);
-    }
+    //set expanded
+    const expandedOids = filter(ParentDepartmentOid, Oids, companys)
+      .flat()
+      .filter((value) => value !== null);
+    setExpanded(expandedOids);
   };
 
   const handleToggle = (event, nodeIds) => {
@@ -205,37 +159,14 @@ const TreeViewCase = () => {
     setSelected(nodeIds);
   };
 
-  const onSubmit = (data) => {
-    if (action.current === "edit") {
-      const changeCompany = {
-        ..._oldCompany.current,
-        Name: data.company.Name,
-        Departments: [],
-      };
-      dispatch(editCompany(changeCompany));
-      reset();
-      setOpenForm(false);
-      return;
-    }
 
-    const newCompany = {
-      ...initCompanyValue,
-      Name: data.company.Name,
-      ParentDepartmentOid: _Oid.current,
-    };
-
-    dispatch(addCompany(newCompany));
-    reset();
-    setOpenForm(false);
-    setExpanded((prev) => {
-      return [...prev, _Oid.current];
-    });
-  };
-
-  console.log(dataTree(companys));
 
   return (
-    <Stack sx={{ height: "700px", margin: "10px" }} direction="row" spacing={2}>
+    <Stack
+      sx={{ height: "700px", margin: "10px", overflow: "hidden" }}
+      direction="row"
+      spacing={2}
+    >
       <FormControl sx={{ flex: 1 }} fullWidth>
         <Autocomplete
           value={valueSelect}
@@ -264,59 +195,53 @@ const TreeViewCase = () => {
         aria-label=""
         defaultCollapseIcon={<ExpandMoreIcon />}
         defaultExpandIcon={<ChevronRightIcon />}
-        sx={{ flex: 1 }}
+        sx={{ flex: 1, height: "100%", overflow: "auto" }}
         expanded={expanded}
         selected={selected}
         onNodeToggle={handleToggle}
         onNodeSelect={handleSelect}
+        multiSelect
       >
         {renderTree(dataTree(companys))}
       </TreeView>
 
-      <Dialog fullWidth maxWidth="xs" open={openForm}>
-        <DialogTitle>
-          {action.current === "edit" ? "Edit" : "Add"}
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={() => setOpenForm(false)}
-            aria-label="close"
-            className="float-end "
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <TextField
-              {...register("company.Name")}
-              autoFocus
-              margin="dense"
-              label={action.current === "edit" ? "Edit tree" : "Add tree"}
-              type="text"
-              fullWidth
-              variant="standard"
-            />
-            {action.current === "edit" ? (
-              <Button
-                className="mt-5 float-end"
-                type="submit"
-                variant="contained"
-              >
-                Edit
-              </Button>
-            ) : (
-              <Button
-                className="mt-5 float-end"
-                type="submit"
-                variant="contained"
-              >
-                Add
-              </Button>
-            )}
-          </form>
-        </DialogContent>
-      </Dialog>
+      <MDBModal
+        animationDirection="bottom"
+        show={confirmModal}
+        tabIndex="-1"
+        setShow={setConFirmModal}
+      >
+        <MDBModalDialog position="bottom">
+          <MDBModalContent>
+            <MDBModalBody className="py-3">
+              <div className="d-flex justify-content-center align-items-center flex-column">
+                <p className="mb-0 text-center">
+                  Bạn muốn xoá{" "}
+                  <span className="fw-bolder">{_oldCompany.current.Name}</span>
+                </p>
+                <div className="d-flex mt-3">
+                  <MDBBtn
+                    color="success"
+                    size="sm"
+                    className="ms-2"
+                    onClick={handleDeleteTreeItem}
+                  >
+                    Đồng ý
+                  </MDBBtn>
+                  <MDBBtn
+                    color="danger"
+                    onClick={() => setConFirmModal(false)}
+                    size="sm"
+                    className="ms-2"
+                  >
+                    Đóng
+                  </MDBBtn>
+                </div>
+              </div>
+            </MDBModalBody>
+          </MDBModalContent>
+        </MDBModalDialog>
+      </MDBModal>
     </Stack>
   );
 };

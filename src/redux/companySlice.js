@@ -5,6 +5,7 @@ const companySlice = createSlice({
   name: "company",
   initialState: { status: "loading", companys: [] },
   reducers: {
+    
     addCompany: (state, action) => {
       const id = Math.random().toString(16).substr(2, 8);
       const Created = new Date();
@@ -51,7 +52,7 @@ const companySlice = createSlice({
 });
 
 export const getCompanys = createAsyncThunk(
-  "company/reloadCompanys",
+  "company/getCompanys",
   async () => {
     const URL =
       "https://nguoidung-react-api.azurewebsites.net/api/v1/Department/";
@@ -71,7 +72,7 @@ export const getCompanys = createAsyncThunk(
 );
 
 export const reloadCompany = createAsyncThunk(
-  "company/getCompanys",
+  "company/reloadCompanys",
   async (_, { getState }) => {
     const URL =
       "https://nguoidung-react-api.azurewebsites.net/api/v1/Department/";

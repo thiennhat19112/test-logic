@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import TextField from "@mui/material/TextField";
 import Switch from "@mui/material/Switch";
 import {
+  Autocomplete,
   Checkbox,
   FormControl,
   FormControlLabel,
@@ -35,6 +36,10 @@ const Form = () => {
   const Oid = location.pathname.split("/")[2];
   const { companys } = useSelector((state) => state.companys);
   const getCompany = companys.find((item) => item?.Oid === Oid);
+  const getParentCompany = companys.find(
+    (item) => getCompany?.ParentDepartmentOid === item.Oid
+  );
+  const optionEdit = companys.filter(item => item.Oid !== getCompany?.Oid);
   const { enqueueSnackbar } = useSnackbar();
   let isMounted = useRef(false);
 
@@ -42,7 +47,7 @@ const Form = () => {
     register,
     handleSubmit,
     setValue,
-    reset,
+    reset,watch,
     control,
     formState: { errors },
   } = useForm({
@@ -52,9 +57,17 @@ const Form = () => {
     },
   });
 
+  console.log(watch("company.ParentDepartmentOid"));
+
   const onSubmit = (data) => {
     const variant = "success";
-    const { company } = data;
+    let ParentDepartmentOid = null;
+    console.log(data.company.ParentDepartmentOid);
+    data.company.ParentDepartmentOid &&
+      (ParentDepartmentOid = data.company.ParentDepartmentOid.Oid);
+
+    let { company } = data;
+    company = { ...company, ParentDepartmentOid: ParentDepartmentOid };
     if (!checkedAgree) return setAgreeError(true);
     if (type === "edit") {
       console.log(company);
@@ -125,7 +138,6 @@ const Form = () => {
           IsParent: company.IsParent || "",
           JoinUnit: company.JoinUnit || "",
           JoninUnitGroup: company.JoninUnitGroup || "",
-          Departments: company.Departments || "",
           BeneficiaryBankNameDvcqg: company.BeneficiaryBankNameDvcqg || "",
         });
       }
@@ -315,45 +327,19 @@ const Form = () => {
         />
 
         <Controller
-          {...register("company.ParentDepartmentOid", { required: true })}
+          {...register("company.ParentDepartmentOid")}
           control={control}
-          render={({ field: { onChange, onBlur, value, name, ref } }) => (
-            <FormControl
-              fullWidth
-              error={!!errors?.company?.ParentDepartmentOid}
-            >
-              <InputLabel id="demo-simple-select-helper-label-ParentDepartmentOid ">
-                ParentDepartmentOid
-              </InputLabel>
-              <Select
-                fullWidth
-                labelId="demo-simple-select-helper-label-ParentDepartmentOid"
-                label="ParentDepartmentOid"
-                value={value}
-                onChange={onChange}
-              >
-                <MenuItem value="">ParentDepartmentOid</MenuItem>
-                <MenuItem value="a">Nguyễn Thiên Nhật a</MenuItem>
-                <MenuItem value="a86b960d-3ea8-409b-a398-60b5c72341fe">testthemphongban</MenuItem>
-
-                {type === "edit" && (
-                  <MenuItem
-                    hidden={
-                      (type !== "edit") |
-                      (getCompany.ParentDepartmentOid === "a")
-                    }
-                    selected={
-                      type === "edit"
-                        ? getCompany.ParentDepartmentOid !== "a"
-                        : false
-                    }
-                    value={getCompany?.ParentDepartmentOid}
-                  >
-                    {getCompany?.ParentDepartmentOid}
-                  </MenuItem>
-                )}
-              </Select>
-            </FormControl>
+          render={({ field: { onChange ,...props } }) => (
+            <Autocomplete
+            fullWidth
+            options={type === "edit" ? optionEdit : companys}
+              getOptionLabel={(option) => `${option.Name}`}
+              renderInput={(params) => (
+                <TextField {...params} label="ParentDepartmentOid" />
+              )}
+              onChange={(e, data) => onChange(data)}
+              defaultValue={type === "edit" ? getParentCompany : null}
+              />
           )}
         />
       </InputContainer>
@@ -439,13 +425,6 @@ const Form = () => {
 
       <InputContainer className="form-outline my-4">
         <TextField
-          {...register("company.Departments", { required: true })}
-          error={!!errors?.company?.Departments}
-          label="Departments"
-          variant="outlined"
-          fullWidth
-        />
-        <TextField
           {...register("company.JoinUnit", { required: true })}
           error={!!errors?.company?.JoinUnit}
           label="JoinUnit"
@@ -459,6 +438,30 @@ const Form = () => {
           label="AgencyNameSms"
           variant="outlined"
           fullWidth
+        />
+
+        <Controller
+          {...register("company.Type", { required: true })}
+          control={control}
+          render={({ field: { onChange, onBlur, value, name, ref } }) => (
+            <FormControl fullWidth error={!!errors?.company?.Type}>
+              <InputLabel id="demo-simple-select-helper-label ">
+                Type
+              </InputLabel>
+              <Select
+                fullWidth
+                labelId="demo-simple-select-helper-label"
+                label="Type"
+                value={value}
+                onChange={onChange}
+              >
+                <MenuItem value="">Type</MenuItem>
+                <MenuItem value="donvi">Đơn vị </MenuItem>
+                <MenuItem value="phongban">Phòng ban </MenuItem>
+                <MenuItem value="nhom">Nhóm</MenuItem>
+              </Select>
+            </FormControl>
+          )}
         />
       </InputContainer>
 
@@ -527,29 +530,6 @@ const Form = () => {
             />
           )}
         ></Controller>
-        <Controller
-          {...register("company.Type", { required: true })}
-          control={control}
-          render={({ field: { onChange, onBlur, value, name, ref } }) => (
-            <FormControl fullWidth error={!!errors?.company?.Type}>
-              <InputLabel id="demo-simple-select-helper-label ">
-                Type
-              </InputLabel>
-              <Select
-                fullWidth
-                labelId="demo-simple-select-helper-label"
-                label="Type"
-                value={value}
-                onChange={onChange}
-              >
-                <MenuItem value="">Type</MenuItem>
-                <MenuItem value="donvi">Đơn vị </MenuItem>
-                <MenuItem value="phongban">Phòng ban </MenuItem>
-                <MenuItem value="nhom">Nhóm</MenuItem>
-              </Select>
-            </FormControl>
-          )}
-        />
       </InputContainer>
 
       <div className="form-outline my-5">

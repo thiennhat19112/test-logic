@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 
 const TableByCat = ({ Types }) => {
   const { companys } = useSelector((state) => state.companys);
-  console.log(Types);
   const fieldCompanys = companys.filter((company) =>
     Types.includes(company.Type)
   );

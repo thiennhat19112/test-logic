@@ -227,7 +227,7 @@ const Table = () => {
         </MDBTable>
       )}
       {/* modal */}
-      <Dialog fullWidth maxWidth="lg" open={open} onClose={handleCloseDialog}>
+      <Dialog fullWidth maxWidth="lg" open={open} >
         <DialogTitle className="d-flex justify-content-between">
           {type === "edit" ? "Sửa" : "Thêm"}
           <IconButton

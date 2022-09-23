@@ -33,7 +33,7 @@ export const initCompanyValue = {
   Hrmoid : "",
   HrmchaOid : "",
   IsParent : "",
-  Departments : "",
+  Departments : [],
   JoinUnit : "",
   JoninUnitGroup : ""
 };
