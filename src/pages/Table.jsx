@@ -16,7 +16,11 @@ import { deleteCompany, reloadCompany } from "../redux/companySlice";
 import moment from "moment";
 import Form from "../components/Form";
 import { useSnackbar } from "notistack";
-import { closeDiaLog, openDiaLog, openDiaLogTreeView } from "../redux/dialogSlice";
+import {
+  closeDiaLog,
+  openDiaLog,
+  openDiaLogTreeView,
+} from "../redux/dialogSlice";
 import {
   CircularProgress,
   DialogActions,
@@ -124,9 +128,9 @@ const Table = () => {
     dispatch(openDiaLogViewByCat());
   };
 
-  const handleTreeView = ()=>{
-    dispatch(openDiaLogTreeView())
-  }
+  const handleTreeView = () => {
+    dispatch(openDiaLogTreeView());
+  };
 
   return (
     <div className="p-4">
@@ -227,7 +231,7 @@ const Table = () => {
         </MDBTable>
       )}
       {/* modal */}
-      <Dialog fullWidth maxWidth="lg" open={open} >
+      <Dialog fullWidth maxWidth="lg" open={open}>
         <DialogTitle className="d-flex justify-content-between">
           {type === "edit" ? "Sửa" : "Thêm"}
           <IconButton
@@ -253,27 +257,29 @@ const Table = () => {
       >
         <MDBModalDialog position="bottom" frame>
           <MDBModalContent>
-            <MDBModalBody className="py-1">
-              <div className="d-flex justify-content-center align-items-center my-3">
-                <p className="mb-0">
+            <MDBModalBody className="py-3">
+              <div className="d-flex justify-content-center align-items-center flex-column">
+                <p className="mb-0 text-center">
                   Bạn muốn xoá {companyChecked.length} item
                 </p>
-                <MDBBtn
-                  color="success"
-                  size="sm"
-                  className="ms-2"
-                  onClick={(e) => handleDelete(e, "success")}
-                >
-                  Đồng ý
-                </MDBBtn>
-                <MDBBtn
-                  color="danger"
-                  onClick={() => setConFirmModal(false)}
-                  size="sm"
-                  className="ms-2"
-                >
-                  Đóng
-                </MDBBtn>
+                <div className="d-flex mt-3">
+                  <MDBBtn
+                    color="success"
+                    size="sm"
+                    className="ms-2"
+                    onClick={(e) => handleDelete(e, "success")}
+                  >
+                    Đồng ý
+                  </MDBBtn>
+                  <MDBBtn
+                    color="danger"
+                    onClick={() => setConFirmModal(false)}
+                    size="sm"
+                    className="ms-2"
+                  >
+                    Đóng
+                  </MDBBtn>
+                </div>
               </div>
             </MDBModalBody>
           </MDBModalContent>

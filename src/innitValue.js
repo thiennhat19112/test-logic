@@ -1,7 +1,6 @@
 export const initCompanyValue = {
   Name: "",
   Idc: "",
-  ParentDepartmentOid: "",
   Ordinal: "",
   PhoneNumber:"",
   Email : "",

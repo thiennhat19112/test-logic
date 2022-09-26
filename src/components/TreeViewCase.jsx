@@ -5,11 +5,7 @@ import TreeItem from "@mui/lab/TreeItem";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Autocomplete,
-  Button,
   Chip,
-  Dialog,
-  DialogContent,
-  DialogTitle,
   FormControl,
   IconButton,
   Stack,
@@ -20,13 +16,8 @@ import { useState } from "react";
 import { Box } from "@mui/system";
 import { AddBox, DriveFileRenameOutlineRounded } from "@mui/icons-material";
 import IndeterminateCheckBoxRoundedIcon from "@mui/icons-material/IndeterminateCheckBoxRounded";
-import CloseIcon from "@mui/icons-material/Close";
-import { useForm } from "react-hook-form";
 import { useRef } from "react";
-import { initCompanyValue } from "../innitValue";
-import {
-  deleteOneComapany,
-} from "../redux/companySlice";
+import { deleteCompany } from "../redux/companySlice";
 import {
   MDBBtn,
   MDBModal,
@@ -82,7 +73,8 @@ const TreeViewCase = () => {
               variant="body2"
               sx={{ fontWeight: "inherit", flexGrow: 1 }}
             >
-              {item.Name} {item.Departments.length > 0 && `(${item.Departments.length})`}
+              {item.Name}{" "}
+              {item.Departments.length > 0 && `(${item.Departments.length})`}
             </Typography>
 
             {selected.includes(item.Oid) && (
@@ -109,15 +101,25 @@ const TreeViewCase = () => {
     ));
   };
 
+  const findChildren =   (company,Departments,arr = []) => {
+    arr.push(company);
+    if (Departments.length > 0) {
+      Departments.map(value => findChildren(value,value.Departments,arr));
+    }
+
+    return arr;
+  }
+
   const handleAddTreeItem = (e, Oid) => {
-    dispatch(openDiaLog())
+    dispatch(openDiaLog());
+    navigate(`/addtree/${Oid}`);
     _Oid.current = Oid;
     e.stopPropagation();
   };
 
   const handleEditTreeItem = (e, data) => {
     dispatch(openDiaLog());
-    const {Oid} = data;
+    const { Oid } = data;
     navigate(`/edit/${Oid}`, { state: data });
     e.stopPropagation();
   };
@@ -129,7 +131,8 @@ const TreeViewCase = () => {
   };
 
   const handleDeleteTreeItem = () => {
-    dispatch(deleteOneComapany(_oldCompany.current.Oid));
+    const companysDelete = findChildren(_oldCompany.current,_oldCompany.current.Departments);
+    dispatch(deleteCompany(companysDelete));
     setConFirmModal(false);
   };
 
@@ -158,8 +161,6 @@ const TreeViewCase = () => {
   const handleSelect = (event, nodeIds) => {
     setSelected(nodeIds);
   };
-
-
 
   return (
     <Stack

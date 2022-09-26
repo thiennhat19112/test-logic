@@ -36,10 +36,7 @@ const Form = () => {
   const Oid = location.pathname.split("/")[2];
   const { companys } = useSelector((state) => state.companys);
   const getCompany = companys.find((item) => item?.Oid === Oid);
-  const getParentCompany = companys.find(
-    (item) => getCompany?.ParentDepartmentOid === item.Oid
-  );
-  const optionEdit = companys.filter(item => item.Oid !== getCompany?.Oid);
+  const optionEdit = companys.filter((item) => item.Oid !== getCompany?.Oid);
   const { enqueueSnackbar } = useSnackbar();
   let isMounted = useRef(false);
 
@@ -47,22 +44,20 @@ const Form = () => {
     register,
     handleSubmit,
     setValue,
-    reset,watch,
+    reset,
     control,
+    watch,
     formState: { errors },
   } = useForm({
-    mode: "onChange",
     defaultValues: {
       company: initCompanyValue,
     },
   });
 
-  console.log(watch("company.ParentDepartmentOid"));
-
   const onSubmit = (data) => {
     const variant = "success";
     let ParentDepartmentOid = null;
-    console.log(data.company.ParentDepartmentOid);
+    console.log(data.company);
     data.company.ParentDepartmentOid &&
       (ParentDepartmentOid = data.company.ParentDepartmentOid.Oid);
 
@@ -70,7 +65,6 @@ const Form = () => {
     company = { ...company, ParentDepartmentOid: ParentDepartmentOid };
     if (!checkedAgree) return setAgreeError(true);
     if (type === "edit") {
-      console.log(company);
       dispatch(editCompany({ ...company, Oid: Oid }));
       dispatch(closeDiaLog());
       navigative("/");
@@ -94,6 +88,20 @@ const Form = () => {
     setAgreeError(checkedAgree);
   };
 
+  const setDefaultValueParentDepartmentOid = () => {
+    if (type === "edit") {
+      return companys.find(
+        (item) => getCompany?.ParentDepartmentOid === item.Oid
+      );
+    }
+
+    if (type === "addtree") {
+      return getCompany;
+    }
+
+    return "";
+  };
+
   useEffect(() => {
     isMounted.current = true;
     if (isMounted.current) {
@@ -103,7 +111,6 @@ const Form = () => {
           Name: company.Name || "",
           Idc: company.Idc || "",
           Type: company.Type || "",
-          ParentDepartmentOid: company.ParentDepartmentOid || "",
           DepartmentByParentGroupOid: company.DepartmentByParentGroupOid || "",
           Ordinal: company.Ordinal || "",
           BeneficiaryBankCodeDvcqg: company.BeneficiaryBankCodeDvcqg || "",
@@ -140,12 +147,18 @@ const Form = () => {
           JoninUnitGroup: company.JoninUnitGroup || "",
           BeneficiaryBankNameDvcqg: company.BeneficiaryBankNameDvcqg || "",
         });
+        console.log(watch("company.ParentDepartmentOid"));
       }
+      // setValue("company", {
+      //   ParentDepartmentOid: setDefaultValueParentDepartmentOid(),
+      // });
     }
     return () => {
       isMounted.current = false;
     };
   }, [Oid]);
+
+  console.log(setDefaultValueParentDepartmentOid());
 
   return (
     <form className="form" onSubmit={handleSubmit(onSubmit)}>
@@ -329,17 +342,24 @@ const Form = () => {
         <Controller
           {...register("company.ParentDepartmentOid")}
           control={control}
-          render={({ field: { onChange ,...props } }) => (
+          render={({ field: { onChange, value, ...props } }) => (
             <Autocomplete
-            fullWidth
-            options={type === "edit" ? optionEdit : companys}
+              fullWidth
+              autoSelect
+              options={type === "edit" ? optionEdit : companys}
               getOptionLabel={(option) => `${option.Name}`}
+              defaultValue={setDefaultValueParentDepartmentOid}
               renderInput={(params) => (
-                <TextField {...params} label="ParentDepartmentOid" />
+                <TextField
+                  {...params}
+                  inputProps={{
+                    ...params.inputProps,
+                  }}
+                  label="ParentDepartmentOid"
+                />
               )}
-              onChange={(e, data) => onChange(data)}
-              defaultValue={type === "edit" ? getParentCompany : null}
-              />
+              onChange={(_, data) => onChange(data)}
+            />
           )}
         />
       </InputContainer>

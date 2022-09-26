@@ -21,16 +21,14 @@ const companySlice = createSlice({
     },
 
     deleteCompany: (state, action) => {
-      const Oids = [];
-      action.payload.map((element) => {
-        return Oids.push(element.Oid);
+      let Oids = [];
+      Oids = action.payload.map((element) => {
+        return element.Oid
       });
       state.companys = state.companys.filter((c) => !Oids.includes(c.Oid));
     },
 
-    deleteOneComapany : (state,action) => {
-      state.companys = state.companys.filter((c) => c.Oid !== action.payload);
-    }
+   
   },
   extraReducers: (builder) => {
     builder
@@ -104,6 +102,6 @@ export const reloadCompany = createAsyncThunk(
   }
 );
 
-export const { addCompany, editCompany, deleteCompany,deleteOneComapany } = companySlice.actions;
+export const { addCompany, editCompany, deleteCompany } = companySlice.actions;
 export const companyReducer = companySlice.reducer;
 export default companySlice;
