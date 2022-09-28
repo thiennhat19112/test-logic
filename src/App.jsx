@@ -1,7 +1,7 @@
 import Table from "./pages/Table";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { getCompanys } from "./redux/companySlice";
+import { getCompanys, getInitTree } from "./redux/companySlice";
 import { BrowserRouter, Routes } from "react-router-dom";
 import { SnackbarProvider } from "notistack";
 import { useRef } from "react";
@@ -20,6 +20,7 @@ function App() {
     //   isMouted.current = false
     // }
     dispatch(getCompanys()); 
+    dispatch(getInitTree())
   }, []);
 
   return (

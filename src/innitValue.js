@@ -34,5 +34,6 @@ export const initCompanyValue = {
   IsParent : "",
   Departments : [],
   JoinUnit : "",
-  JoninUnitGroup : ""
+  JoninUnitGroup : "",
+  ParentDepartmentOid : null
 };

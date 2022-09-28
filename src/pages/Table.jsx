@@ -101,8 +101,24 @@ const Table = () => {
     setCheckAll(!checkedAll);
   };
 
+  const findChildren = (company, arr = []) => {
+
+    arr.push(company);
+   
+    const Oids = company.map(c => c.Oid);
+    const children = companys.filter((item) =>
+      Oids.includes(item.ParentDepartmentOid)
+    );
+    if(children.length !== 0){
+      findChildren(children, arr);
+    }
+    return arr;
+  };
+
   const handleDelete = (e, variant) => {
-    dispatch(deleteCompany(companyChecked));
+    const companysDelete = findChildren(companyChecked).flat();
+    console.log(companysDelete);
+    dispatch(deleteCompany(companysDelete));
     setCompanyChecked([]);
     setCheckAll(false);
     enqueueSnackbar("Xóa thành công!", { variant });
@@ -260,7 +276,7 @@ const Table = () => {
             <MDBModalBody className="py-3">
               <div className="d-flex justify-content-center align-items-center flex-column">
                 <p className="mb-0 text-center">
-                  Bạn muốn xoá {companyChecked.length} item
+                  Bạn có muốn xóa !
                 </p>
                 <div className="d-flex mt-3">
                   <MDBBtn

@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   Autocomplete,
   Chip,
+  CircularProgress,
   FormControl,
   IconButton,
   Stack,
@@ -17,7 +18,7 @@ import { Box } from "@mui/system";
 import { AddBox, DriveFileRenameOutlineRounded } from "@mui/icons-material";
 import IndeterminateCheckBoxRoundedIcon from "@mui/icons-material/IndeterminateCheckBoxRounded";
 import { useRef } from "react";
-import { deleteCompany } from "../redux/companySlice";
+import { deleteCompany, fetchChildrenTree } from "../redux/companySlice";
 import {
   MDBBtn,
   MDBModal,
@@ -29,7 +30,7 @@ import { openDiaLog } from "../redux/dialogSlice";
 import { useNavigate } from "react-router-dom";
 
 const TreeViewCase = () => {
-  const { companys } = useSelector((state) => state.companys);
+  const { companys, initTree ,statusGetChild} = useSelector((state) => state.companys);
   const [valueSelect, setValueSelect] = useState([]);
   const [expanded, setExpanded] = useState([]);
   const [selected, setSelected] = useState([]);
@@ -59,6 +60,7 @@ const TreeViewCase = () => {
     return nodes.map((item) => (
       <TreeItem
         nodeId={item.Oid}
+        expandIcon={expanded.includes(item.Oid) && <CircularProgress/>}
         label={
           <Box
             sx={{
@@ -73,8 +75,7 @@ const TreeViewCase = () => {
               variant="body2"
               sx={{ fontWeight: "inherit", flexGrow: 1 }}
             >
-              {item.Name}{" "}
-              {item.Departments.length > 0 && `(${item.Departments.length})`}
+              {item.Name}
             </Typography>
 
             {selected.includes(item.Oid) && (
@@ -95,20 +96,44 @@ const TreeViewCase = () => {
           </Box>
         }
         key={item.Oid}
+        onClick={() => handleGetChild(item.Oid)}
       >
-        {item?.Departments ? renderTree(item.Departments) : null}
+        {item?.IsParent
+          ? item.Departments.length > 0
+            ? renderTree(item.Departments)
+            : [<div key="stub" />]
+          : null}
       </TreeItem>
     ));
   };
 
-  const findChildren =   (company,Departments,arr = []) => {
-    arr.push(company);
-    if (Departments.length > 0) {
-      Departments.map(value => findChildren(value,value.Departments,arr));
+  const handleGetChild = (id) => {
+    let bac;
+    const company = initTree.find((item) => item.Oid === id);
+
+    if (company.ParentDepartmentOid === null) {
+      bac = 1;
+    } else {
+      bac = filter([company.ParentDepartmentOid], [company.Oid], [company]).length;
     }
 
+    const isFetchChildren = initTree.some(
+      (item) => item.ParentDepartmentOid === id
+    );
+
+    if (!isFetchChildren && company.IsParent && statusGetChild !== "loading") {
+      dispatch(fetchChildrenTree({ id: id, bac: bac + 1 }));
+    }
+
+  };
+
+  const findChildren = (company, Departments, arr = []) => {
+    arr.push(company);
+    if (Departments.length > 0) {
+      Departments.map((value) => findChildren(value, value.Departments, arr));
+    }
     return arr;
-  }
+  };
 
   const handleAddTreeItem = (e, Oid) => {
     dispatch(openDiaLog());
@@ -131,7 +156,10 @@ const TreeViewCase = () => {
   };
 
   const handleDeleteTreeItem = () => {
-    const companysDelete = findChildren(_oldCompany.current,_oldCompany.current.Departments);
+    const companysDelete = findChildren(
+      _oldCompany.current,
+      _oldCompany.current.Departments
+    );
     dispatch(deleteCompany(companysDelete));
     setConFirmModal(false);
   };
@@ -164,7 +192,7 @@ const TreeViewCase = () => {
 
   return (
     <Stack
-      sx={{ height: "700px", margin: "10px", overflow: "hidden" }}
+      sx={{ height: "500px", margin: "10px", overflow: "hidden" }}
       direction="row"
       spacing={2}
     >
@@ -203,7 +231,7 @@ const TreeViewCase = () => {
         onNodeSelect={handleSelect}
         multiSelect
       >
-        {renderTree(dataTree(companys))}
+        {renderTree(dataTree(initTree))}
       </TreeView>
 
       <MDBModal

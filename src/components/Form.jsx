@@ -7,6 +7,7 @@ import Switch from "@mui/material/Switch";
 import {
   Autocomplete,
   Checkbox,
+  Chip,
   FormControl,
   FormControlLabel,
   InputLabel,
@@ -50,6 +51,7 @@ const Form = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
+      mode : "onChange",
       company: initCompanyValue,
     },
   });
@@ -99,7 +101,7 @@ const Form = () => {
       return getCompany;
     }
 
-    return "";
+    return null;
   };
 
   useEffect(() => {
@@ -146,19 +148,19 @@ const Form = () => {
           JoinUnit: company.JoinUnit || "",
           JoninUnitGroup: company.JoninUnitGroup || "",
           BeneficiaryBankNameDvcqg: company.BeneficiaryBankNameDvcqg || "",
+          ParentDepartmentOid: setDefaultValueParentDepartmentOid(),
         });
-        console.log(watch("company.ParentDepartmentOid"));
+      } else if (type === "addtree") {
+        setValue("company", {
+          ...initCompanyValue,
+          ParentDepartmentOid: setDefaultValueParentDepartmentOid(),
+        });
       }
-      // setValue("company", {
-      //   ParentDepartmentOid: setDefaultValueParentDepartmentOid(),
-      // });
     }
     return () => {
       isMounted.current = false;
     };
   }, [Oid]);
-
-  console.log(setDefaultValueParentDepartmentOid());
 
   return (
     <form className="form" onSubmit={handleSubmit(onSubmit)}>
@@ -344,19 +346,13 @@ const Form = () => {
           control={control}
           render={({ field: { onChange, value, ...props } }) => (
             <Autocomplete
+              defaultValue={setDefaultValueParentDepartmentOid()}
+              
               fullWidth
-              autoSelect
               options={type === "edit" ? optionEdit : companys}
               getOptionLabel={(option) => `${option.Name}`}
-              defaultValue={setDefaultValueParentDepartmentOid}
               renderInput={(params) => (
-                <TextField
-                  {...params}
-                  inputProps={{
-                    ...params.inputProps,
-                  }}
-                  label="ParentDepartmentOid"
-                />
+                <TextField {...params}  label="ParentDepartmentOid" />
               )}
               onChange={(_, data) => onChange(data)}
             />
